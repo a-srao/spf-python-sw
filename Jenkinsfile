@@ -1,5 +1,6 @@
 def node = 'Build-d001_EJ-019-64W10-12' //Node on which build should execute
 def source_files = "src"  // directory in which python source files exist
+def test_files = "test"  // directory in which python source files exist
 def req_txt = "config/python/requirements.txt" // requirements.txt location
 
 // Jenkins specific configurations
@@ -7,9 +8,9 @@ def sonar_scanner_toolname = 'sonar-scanner-cli-4.6.0.2311-windows' // Scanner t
 def sonar_server_instance = 'sonar-ee' //instance name configured on Jenkins
 
 //Sonar properties
-def sonar_projectKey="${params.ProjectName}"
-def sonar_projectName="${params.ProjectName}"
-def sonar_projectBaseDir="." 
+def sonar_projectKey =  "spf-python-sw"
+def sonar_projectName = "spf-python-sw"
+def sonar_projectBaseDir= "." 
 def sonar_sources="." 
 def sonar_exclusions="**/coverage_html/**"
 def sonar_coverage_exclusions="**/test/**"
@@ -19,6 +20,10 @@ def sonar_python_pylint_report = "pylint.xml"
 						
 pipeline {
     agent { label "${node}" }
+    environment {
+    sonarscanner = tool name: "${sonar_scanner_toolname}"
+  }
+
     stages {
         stage('Setup python env ') {
             steps {
@@ -35,27 +40,11 @@ pipeline {
                 }
             }
         }
-        // stage("Pytest"){
-        //     steps {
-        //         script {
-		// 			bat """
-		// 			cd ${source_files}
-		// 			echo "Testing Python files in ${source_files}"
-		// 			REM pytest --rootdir=. test --with-xunit --xunit-file=pyunit.xml
-        //             pytest --rootdir=. ../test/test_hello_world
-        //             junit 'pyunit.xml'
-		// 			"""
-        //         }
-        //     }
-        // }
-        stage('Coverage'){
+        stage('Test and Coverage'){
             steps {
                 script {
 					bat """
-					REM cd ${source_files}
-                    coverage run --omit=*/test/* --source ${source_files} --branch -m pytest --cache-clear --junitxml pytest.xml "test"
-                    REM coverage html -d coverage_html
-                    REM coverage run --source . --branch -m py.test --junitxml pytest.xml test
+                    coverage run --omit=*/test/* --source ${source_files} --branch -m pytest --cache-clear --junitxml ${sonar_python_reportPath} ${test_files}
                     coverage html -d coverage_html
                     coverage xml -o ${sonar_python_coverage_reportPath}
                     """
@@ -66,25 +55,20 @@ pipeline {
             steps {
                 script {
 					bat """
-					cd ${source_files}
-                    pylint -r n --msg-template="{path}:{line}: [{msg_id}({symbol}), {obj}] {msg}" > pylint.xml
+                    python -m pylint -r n --msg-template="{path}:{line}: [{msg_id}({symbol}), {obj}] {msg}" ./${source_files} > ${sonar_python_pylint_report}
+                    exit 0
                     """
                 }
             }
         }
-        
-        
 		stage("StaticCodeAnalyser - SonarQube"){
 			steps {
 				script {
-					def scannerHome = tool name: ${sonar_scanner_toolname}, type: 'hudson.plugins.sonar.SonarRunnerInstallation';
-                    echo "hello"
-					// withSonarQubeEnv("${sonar_server_instance}" {
-					// 	bat """
-					// 	    cd ${source_files}
-					// 	    $scannerHome\\bin\\sonar-scanner.bat -D sonar-project.properties=$workspace\\config\\sonarqube\\sonar-project.properties -D sonar.projectKey=$sonar_projectKey -D sonar.projectName=$sonar_projectName -D sonar.projectBaseDir=$sonar.projectBaseDir -D sonar.sources=$sonar_sources -D sonar.exclusions=$sonar_exclusions  -D sonar.coverage.exclusions=$sonar_coverage_exclusions -D sonar.python.xunit.reportPath=$sonar_python_xunit_reportPath -D sonar.python.coverage.reportPath=$sonar_python_coverage_reportPath -D sonar.python.pylint.reportPath=$sonar_python_pylint_report
-					// 	"""
-					// }
+					withSonarQubeEnv ("${sonar_server_instance}") {
+						bat """
+						    $sonarscanner\\bin\\sonar-scanner.bat -Dproject.settings=$workspace\\config\\sonarqube\\sonar_project.properties -Dsonar.projectKey=$sonar_projectKey -Dsonar.projectName=$sonar_projectName -Dsonar.projectBaseDir=$sonar_projectBaseDir -Dsonar.sources=$source_files -Dsonar.exclusions=$sonar_exclusions  -Dsonar.coverage.exclusions=$sonar_coverage_exclusions -Dsonar.python.xunit.reportPath=$sonar_python_reportPath -Dsonar.python.coverage.reportPaths=$sonar_python_coverage_reportPath -Dsonar.python.pylint.reportPath=$sonar_python_pylint_report -X
+						    """
+					}
 				}
 			}
 		}
