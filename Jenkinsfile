@@ -42,6 +42,7 @@ pipeline {
                     -Dsonar.python.pylint.reportPath=$sonar_python_pylint_report  
                     """
                     if (changeRequest()) {
+                        echo "This is a Pull Request. Passing this information to SonarQube"
                         sonar_parameters = sonar_parameters + """
                         -Dsonar.pullrequest.key=$CHANGE_ID"
                         -Dsonar.pullrequest.branch=$CHANGE_BRANCH 
