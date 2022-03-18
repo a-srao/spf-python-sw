@@ -17,7 +17,7 @@ def sonar_coverage_exclusions="**/test/**"
 def sonar_python_reportPath="pytest.xml"
 def sonar_python_coverage_reportPath="coverage.xml"
 def sonar_python_pylint_report = "pylint.xml"
-def sonar_parameters=""
+sonar_parameters=""
 						
 pipeline {
     agent { label "${node}" }
