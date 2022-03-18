@@ -35,25 +35,27 @@ pipeline {
                 }
             }
         }
-        stage("Pytest"){
-            steps {
-                script {
-					bat """
-					cd ${source_files}
-					echo "Testing Python files in ${source_files}"
-					REM pytest --rootdir=. test --with-xunit --xunit-file=pyunit.xml
-                    pytest --rootdir=. test
-                    junit 'pyunit.xml'
-					"""
-                }
-            }
-        }
+        // stage("Pytest"){
+        //     steps {
+        //         script {
+		// 			bat """
+		// 			cd ${source_files}
+		// 			echo "Testing Python files in ${source_files}"
+		// 			REM pytest --rootdir=. test --with-xunit --xunit-file=pyunit.xml
+        //             pytest --rootdir=. ../test/test_hello_world
+        //             junit 'pyunit.xml'
+		// 			"""
+        //         }
+        //     }
+        // }
         stage('Coverage'){
             steps {
                 script {
 					bat """
-					cd ${source_files}
-                    coverage run --source . --branch -m py.test --junitxml pytest.xml test
+					REM cd ${source_files}
+                    coverage run --omit=*/test/* --source ${source_files} --branch -m pytest --cache-clear --junitxml pytest.xml "test"
+                    REM coverage html -d coverage_html
+                    REM coverage run --source . --branch -m py.test --junitxml pytest.xml test
                     coverage html -d coverage_html
                     coverage xml -o ${sonar_python_coverage_reportPath}
                     """
