@@ -41,7 +41,7 @@ pipeline {
                     -Dsonar.python.coverage.reportPaths=$sonar_python_coverage_reportPath 
                     -Dsonar.python.pylint.reportPath=$sonar_python_pylint_report  
                     """
-                    if ($CHANGE_ID) {
+                    if (CHANGE_ID) {
                         sonar_parameters = sonar_parameters + """
                         -Dsonar.pullrequest.key=$CHANGE_ID"
                         -Dsonar.pullrequest.branch=$CHANGE_BRANCH 
