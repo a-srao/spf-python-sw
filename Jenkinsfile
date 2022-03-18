@@ -28,27 +28,29 @@ pipeline {
     stages {
         stage('Init') {
             steps {
-                sonar_parameters = """
-                -X 
-                -Dsonar.projectKey=$sonar_projectKey
-                -Dsonar.projectName=$sonar_projectName 
-                -Dsonar.projectBaseDir=$sonar_projectBaseDir 
-                -Dsonar.sources=$source_files 
-                -Dsonar.exclusions=$sonar_exclusions  
-                -Dsonar.coverage.exclusions=$sonar_coverage_exclusions 
-                -Dsonar.python.xunit.reportPath=$sonar_python_reportPath 
-                -Dsonar.python.coverage.reportPaths=$sonar_python_coverage_reportPath 
-                -Dsonar.python.pylint.reportPath=$sonar_python_pylint_report  
-                """
-                if ($CHANGE_ID) {
-                    sonar_parameters = sonar_parameters + """
-                    -Dsonar.pullrequest.key=$CHANGE_ID"
-                    -Dsonar.pullrequest.branch=$CHANGE_BRANCH 
-                    -Dsonar.pullrequest.base=$CHANGE_TARGET
+                script {
+                    sonar_parameters = """
+                    -X 
+                    -Dsonar.projectKey=$sonar_projectKey
+                    -Dsonar.projectName=$sonar_projectName 
+                    -Dsonar.projectBaseDir=$sonar_projectBaseDir 
+                    -Dsonar.sources=$source_files 
+                    -Dsonar.exclusions=$sonar_exclusions  
+                    -Dsonar.coverage.exclusions=$sonar_coverage_exclusions 
+                    -Dsonar.python.xunit.reportPath=$sonar_python_reportPath 
+                    -Dsonar.python.coverage.reportPaths=$sonar_python_coverage_reportPath 
+                    -Dsonar.python.pylint.reportPath=$sonar_python_pylint_report  
                     """
-                }
-                else {
-                    sonar_parameters = sonar_parameters + " -Dsonar.branch.name = $BRANCH_NAME "
+                    if ($CHANGE_ID) {
+                        sonar_parameters = sonar_parameters + """
+                        -Dsonar.pullrequest.key=$CHANGE_ID"
+                        -Dsonar.pullrequest.branch=$CHANGE_BRANCH 
+                        -Dsonar.pullrequest.base=$CHANGE_TARGET
+                        """
+                    }
+                    else {
+                        sonar_parameters = sonar_parameters + " -Dsonar.branch.name = $BRANCH_NAME "
+                    }
                 }
             }
         }
