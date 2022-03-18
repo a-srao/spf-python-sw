@@ -3,8 +3,8 @@ def source_files = "src"  // directory in which python source files exist
 def req_txt = "config/python/requirements.txt" // requirements.txt location
 
 // Jenkins specific configurations
-def sonar-scanner-toolname = 'sonar-scanner-cli-4.6.0.2311-windows' // Scanner toolname as configured in Jenkins
-def sonar-server-instance = 'sonar-ee' //instance name configured on Jenkins
+def sonar_scanner_toolname = 'sonar-scanner-cli-4.6.0.2311-windows' // Scanner toolname as configured in Jenkins
+def sonar_server_instance = 'sonar-ee' //instance name configured on Jenkins
 
 //Sonar properties
 def sonar_projectKey="${params.ProjectName}"
@@ -75,8 +75,8 @@ pipeline {
 		stage("StaticCodeAnalyser - SonarQube"){
 			steps {
 				script {
-					def scannerHome = tool name: ${sonar-scanner-toolname}, type: 'hudson.plugins.sonar.SonarRunnerInstallation';
-					withSonarQubeEnv("${sonar-server-instance}" {
+					def scannerHome = tool name: ${sonar_scanner_toolname}, type: 'hudson.plugins.sonar.SonarRunnerInstallation';
+					withSonarQubeEnv("${sonar_server_instance}" {
 						bat """
 						    cd ${source_files}
 						    $scannerHome\\bin\\sonar-scanner.bat -D sonar-project.properties=$workspace\\config\\sonarqube\\sonar-project.properties -D sonar.projectKey=$sonar_projectKey -D sonar.projectName=$sonar_projectName -D sonar.projectBaseDir=$sonar.projectBaseDir -D sonar.sources=$sonar_sources -D sonar.exclusions=$sonar_exclusions  -D sonar.coverage.exclusions=$sonar_coverage_exclusions -D sonar.python.xunit.reportPath=$sonar_python_xunit_reportPath -D sonar.python.coverage.reportPath=$sonar_python_coverage_reportPath -D sonar.python.pylint.reportPath=$sonar_python_pylint_report
