@@ -1,4 +1,4 @@
-def node = 'windows_node' //Node on which build should execute
+def node = 'Build-d001_EJ-019-64W10-12' //Node on which build should execute
 def source_files = "src"  // directory in which python source files exist
 def req_txt = "config/python/requirements.txt" // requirements.txt location
 
