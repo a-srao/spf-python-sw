@@ -76,14 +76,14 @@ pipeline {
 			steps {
 				script {
 					def scannerHome = tool name: ${sonar_scanner_toolname}, type: 'hudson.plugins.sonar.SonarRunnerInstallation';
-					withSonarQubeEnv("${sonar_server_instance}" {
-						bat """
-						    cd ${source_files}
-						    $scannerHome\\bin\\sonar-scanner.bat -D sonar-project.properties=$workspace\\config\\sonarqube\\sonar-project.properties -D sonar.projectKey=$sonar_projectKey -D sonar.projectName=$sonar_projectName -D sonar.projectBaseDir=$sonar.projectBaseDir -D sonar.sources=$sonar_sources -D sonar.exclusions=$sonar_exclusions  -D sonar.coverage.exclusions=$sonar_coverage_exclusions -D sonar.python.xunit.reportPath=$sonar_python_xunit_reportPath -D sonar.python.coverage.reportPath=$sonar_python_coverage_reportPath -D sonar.python.pylint.reportPath=$sonar_python_pylint_report
-
-						"""
-					}
-				// }
+                    echo "hello"
+					// withSonarQubeEnv("${sonar_server_instance}" {
+					// 	bat """
+					// 	    cd ${source_files}
+					// 	    $scannerHome\\bin\\sonar-scanner.bat -D sonar-project.properties=$workspace\\config\\sonarqube\\sonar-project.properties -D sonar.projectKey=$sonar_projectKey -D sonar.projectName=$sonar_projectName -D sonar.projectBaseDir=$sonar.projectBaseDir -D sonar.sources=$sonar_sources -D sonar.exclusions=$sonar_exclusions  -D sonar.coverage.exclusions=$sonar_coverage_exclusions -D sonar.python.xunit.reportPath=$sonar_python_xunit_reportPath -D sonar.python.coverage.reportPath=$sonar_python_coverage_reportPath -D sonar.python.pylint.reportPath=$sonar_python_pylint_report
+					// 	"""
+					// }
+				}
 			}
 		}
        stage('Upload Artifacts') {
