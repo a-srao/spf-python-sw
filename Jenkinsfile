@@ -1,25 +1,45 @@
-def node = 'windows_node' //Node on which build should execute
+def node = 'Build-d001_EJ-019-64W10-12' //Node on which build should execute
 def source_files = "src"  // directory in which python source files exist
+def test_files = "test"  // directory in which python source files exist
 def req_txt = "config/python/requirements.txt" // requirements.txt location
 
 // Jenkins specific configurations
-def sonar-scanner-toolname = 'sonar-scanner-cli-4.6.0.2311-windows' // Scanner toolname as configured in Jenkins
-def sonar-server-instance = 'sonar-ee' //instance name configured on Jenkins
+def sonar_scanner_toolname = 'sonar-scanner-cli-4.6.0.2311-windows' // Scanner toolname as configured in Jenkins
+def sonar_server_instance = 'sonar-ee' //instance name configured on Jenkins
 
 //Sonar properties
-def sonar_projectKey="${params.ProjectName}"
-def sonar_projectName="${params.ProjectName}"
-def sonar_projectBaseDir="." 
+def sonar_projectKey =  "spf-python-sw"
+def sonar_projectName = "spf-python-sw"
+def sonar_projectBaseDir= "." 
 def sonar_sources="." 
 def sonar_exclusions="**/coverage_html/**"
 def sonar_coverage_exclusions="**/test/**"
 def sonar_python_reportPath="pytest.xml"
 def sonar_python_coverage_reportPath="coverage.xml"
 def sonar_python_pylint_report = "pylint.xml"
+sonar_parameters=""
 						
 pipeline {
     agent { label "${node}" }
+    environment {
+    sonarscanner = tool name: "${sonar_scanner_toolname}"
+  }
+
     stages {
+        stage('Init') {
+            steps {
+                script {
+                    sonar_parameters = " -X -Dsonar.projectKey=$sonar_projectKey -Dsonar.projectName=$sonar_projectName -Dsonar.projectBaseDir=$sonar_projectBaseDir -Dsonar.sources=$source_files -Dsonar.exclusions=$sonar_exclusions  -Dsonar.coverage.exclusions=$sonar_coverage_exclusions -Dsonar.python.xunit.reportPath=$sonar_python_reportPath -Dsonar.python.coverage.reportPaths=$sonar_python_coverage_reportPath -Dsonar.python.pylint.reportPath=$sonar_python_pylint_report "
+                    if (changeRequest()) {
+                        echo "This is a Pull Request. Passing this information to SonarQube"
+                        sonar_parameters = sonar_parameters + " -Dsonar.pullrequest.key=$CHANGE_ID -Dsonar.pullrequest.branch=$CHANGE_BRANCH -Dsonar.pullrequest.base=$CHANGE_TARGET "
+                    }
+                    else {
+                        sonar_parameters = sonar_parameters + " -Dsonar.branch.name = $BRANCH_NAME "
+                    }
+                }
+            }
+        }
         stage('Setup python env ') {
             steps {
                 script {
@@ -35,25 +55,11 @@ pipeline {
                 }
             }
         }
-        stage("Pytest"){
+        stage('Test and Coverage'){
             steps {
                 script {
 					bat """
-					cd ${source_files}
-					echo "Testing Python files in ${source_files}"
-					REM pytest --rootdir=. test --with-xunit --xunit-file=pyunit.xml
-                    pytest --rootdir=. test
-                    junit 'pyunit.xml'
-					"""
-                }
-            }
-        }
-        stage('Coverage'){
-            steps {
-                script {
-					bat """
-					cd ${source_files}
-                    coverage run --source . --branch -m py.test --junitxml pytest.xml test
+                    coverage run --omit=*/test/* --source ${source_files} --branch -m pytest --cache-clear --junitxml ${sonar_python_reportPath} ${test_files}
                     coverage html -d coverage_html
                     coverage xml -o ${sonar_python_coverage_reportPath}
                     """
@@ -64,28 +70,35 @@ pipeline {
             steps {
                 script {
 					bat """
-					cd ${source_files}
-                    pylint -r n --msg-template="{path}:{line}: [{msg_id}({symbol}), {obj}] {msg}" > pylint.xml
+                    python -m pylint -r n --msg-template="{path}:{line}: [{msg_id}({symbol}), {obj}] {msg}" ./${source_files} > ${sonar_python_pylint_report}
+                    exit 0
                     """
                 }
             }
         }
-        
-        
 		stage("StaticCodeAnalyser - SonarQube"){
 			steps {
 				script {
-					def scannerHome = tool name: ${sonar-scanner-toolname}, type: 'hudson.plugins.sonar.SonarRunnerInstallation';
-					withSonarQubeEnv("${sonar-server-instance}" {
+					withSonarQubeEnv ("${sonar_server_instance}") {
 						bat """
-						    cd ${source_files}
-						    $scannerHome\\bin\\sonar-scanner.bat -D sonar-project.properties=$workspace\\config\\sonarqube\\sonar-project.properties -D sonar.projectKey=$sonar_projectKey -D sonar.projectName=$sonar_projectName -D sonar.projectBaseDir=$sonar.projectBaseDir -D sonar.sources=$sonar_sources -D sonar.exclusions=$sonar_exclusions  -D sonar.coverage.exclusions=$sonar_coverage_exclusions -D sonar.python.xunit.reportPath=$sonar_python_xunit_reportPath -D sonar.python.coverage.reportPath=$sonar_python_coverage_reportPath -D sonar.python.pylint.reportPath=$sonar_python_pylint_report
-
-						"""
+						    $sonarscanner\\bin\\sonar-scanner.bat  $sonar_parameters
+						    """
 					}
 				}
 			}
 		}
+        stage("Quality Gate"){  // this should be enabled in conjunction with SonarQube Webhooks
+            steps {
+                timeout(time: 1, unit: 'HOURS') { // Just in case something goes wrong, pipeline will be killed after a timeout
+                    script {
+                        def qg = waitForQualityGate abortPipeline: true// Reuse taskId previously collected by withSonarQubeEnv
+                        if (qg.status != 'OK') {
+                            error "Pipeline aborted due to quality gate failure: ${qg.status}"
+                        }
+                    }
+                }
+            }
+        }
        stage('Upload Artifacts') {
             steps {
                 script {
