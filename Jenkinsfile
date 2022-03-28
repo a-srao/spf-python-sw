@@ -43,7 +43,7 @@ pipeline {
                     steps {
                         echo "This is a normal Branch. Passing this information to SonarQube"
                         script {
-                            sonar_parameters = sonar_parameters + " -Dsonar.branch.name = $BRANCH_NAME "
+                            sonar_parameters = sonar_parameters + " -Dsonar.branch.name=$BRANCH_NAME "
                         }
                     }
                 }
