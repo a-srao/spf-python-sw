@@ -26,16 +26,25 @@ pipeline {
   }
 
     stages {
-        stage('Init') {
-            steps {
-                script {
-                    sonar_parameters = " -X -Dsonar.projectKey=$sonar_projectKey -Dsonar.projectName=$sonar_projectName -Dsonar.projectBaseDir=$sonar_projectBaseDir -Dsonar.sources=$source_files -Dsonar.exclusions=$sonar_exclusions  -Dsonar.coverage.exclusions=$sonar_coverage_exclusions -Dsonar.python.xunit.reportPath=$sonar_python_reportPath -Dsonar.python.coverage.reportPaths=$sonar_python_coverage_reportPath -Dsonar.python.pylint.reportPath=$sonar_python_pylint_report "
-                    if (changeRequest()) {
+        stage('Init SonarQube settings') {
+            sonar_parameters = " -X -Dsonar.projectKey=$sonar_projectKey -Dsonar.projectName=$sonar_projectName -Dsonar.projectBaseDir=$sonar_projectBaseDir -Dsonar.sources=$source_files -Dsonar.exclusions=$sonar_exclusions  -Dsonar.coverage.exclusions=$sonar_coverage_exclusions -Dsonar.python.xunit.reportPath=$sonar_python_reportPath -Dsonar.python.coverage.reportPaths=$sonar_python_coverage_reportPath -Dsonar.python.pylint.reportPath=$sonar_python_pylint_report "
+            parallel {
+                stage('PR') {
+                    when { changeRequest() }
                         echo "This is a Pull Request. Passing this information to SonarQube"
                         sonar_parameters = sonar_parameters + " -Dsonar.pullrequest.key=$CHANGE_ID -Dsonar.pullrequest.branch=$CHANGE_BRANCH -Dsonar.pullrequest.base=$CHANGE_TARGET "
+                }
+                stage ('Branch'){
+                    when { not { changeRequest() } }
+                        echo "This is a normal Branch. Passing this information to SonarQube"
+                        sonar_parameters = sonar_parameters + " -Dsonar.branch.name = $BRANCH_NAME "
+                }
+            }
+            steps {
+                script {
+                    if (changeRequest()) {
                     }
                     else {
-                        sonar_parameters = sonar_parameters + " -Dsonar.branch.name = $BRANCH_NAME "
                     }
                 }
             }
