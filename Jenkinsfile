@@ -35,17 +35,21 @@ pipeline {
             parallel {
                 stage('PR') {
                     when { changeRequest() }
+                    steps {
                         echo "This is a Pull Request. Passing this information to SonarQube"
                         script {
                             sonar_parameters = sonar_parameters + " -Dsonar.pullrequest.key=$CHANGE_ID -Dsonar.pullrequest.branch=$CHANGE_BRANCH -Dsonar.pullrequest.base=$CHANGE_TARGET "
                         }
+                    }
                 }
                 stage ('Branch'){
                     when { not { changeRequest() } }
+                    steps {
                         echo "This is a normal Branch. Passing this information to SonarQube"
                         script {
                             sonar_parameters = sonar_parameters + " -Dsonar.branch.name = $BRANCH_NAME "
                         }
+                    }
                 }
             }
             steps {
