@@ -48,14 +48,6 @@ pipeline {
                     }
                 }
             }
-            steps {
-                script {
-                    if (changeRequest()) {
-                    }
-                    else {
-                    }
-                }
-            }
         }
         stage('Setup python env ') {
             steps {
