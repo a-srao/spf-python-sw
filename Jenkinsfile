@@ -57,6 +57,17 @@ pipeline {
                 }
             }
         }
+		
+		stage('Profile'){
+			steps{
+				script{
+					bat """
+						python -m cProfile -o profile.pstats src/hello_world.py
+						
+				}
+			}
+		
+		}
         stage('Build project') {
             steps {
                 script {
