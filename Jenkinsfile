@@ -63,6 +63,7 @@ pipeline {
 				script{
 					bat """
 						python -m cProfile -o profile.pstats src/hello_world.py
+					"""
 						
 				}
 			}
