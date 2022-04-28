@@ -59,4 +59,5 @@ html_static_path = ['_static']
 # unable to mock: numpy, six
 autodoc_mock_imports = [
     "pverify",
+    "hello_world",
 ]
