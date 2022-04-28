@@ -7,7 +7,7 @@ Welcome to SPF_TechDoc's documentation!
 =======================================
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 4
    :caption: Contents:
 
    modules.rst
