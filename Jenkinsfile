@@ -53,7 +53,7 @@ pipeline {
         stage('Setup python env ') {
             parallel {
                 stage ('Windows') {
-                    when ( not isUnix())
+                    when { not isUnix()}
                     steps {
                         script {
                             echo 'Setup python env on Windows'
@@ -62,7 +62,7 @@ pipeline {
                     }
                 }
                 stage ('Linux'){
-                    when ( isUnix())
+                    when { isUnix()}
                     steps {
                         script {
                             echo 'Setup python env on Linux'
