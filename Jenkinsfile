@@ -50,6 +50,26 @@ pipeline {
             }
         }
         stage('Setup python env ') {
+            parallel {
+                stage ('Windows') {
+                    when ( not isUnix())
+                    steps {
+                        script {
+                            echo 'Setup python env on Windows'
+                            bat "python -m pip install -r ${req_txt}"
+                        }
+                    }
+                }
+                stage ('Linux'){
+                    when ( isUnix())
+                    steps {
+                        script {
+                            echo 'Setup python env on Linux'
+                            sh "python -m pip install -r ${req_txt}"
+                        }
+                    }
+                }
+            }
             steps {
                 script {
                     echo 'Setup python env'
