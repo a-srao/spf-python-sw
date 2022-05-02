@@ -1,4 +1,5 @@
-def node = 'Build-d001_EJ-019-64W10-12' //Node on which build should execute
+// def node = 'Build-d001_EJ-019-64W10-12' //Node on which build should execute
+def node = 'spf01_build-d001-cent7-x64-v' //Node on which build should execute
 def source_files = "src"  // directory in which python source files exist
 def test_files = "test"  // directory in which python source files exist
 def req_txt = "config/python/requirements.txt" // requirements.txt location
