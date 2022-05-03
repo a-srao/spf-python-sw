@@ -55,7 +55,10 @@ pipeline {
                 script {
                     if ( isUnix()) {
                         echo 'Setup python env on Linux'
-                        sh "python -m pip install -r ${req_txt}"
+                        sh '''
+                        module load python/3.9
+                        python -m pip install -r ${req_txt}
+                        '''
                     }
                     else {
                         echo 'Setup python env on Windows'
