@@ -24,6 +24,7 @@ pipeline {
     agent { label "${node}" }
     environment {
     sonarscanner = tool name: "${sonar_scanner_toolname}"
+    graphviz= tool 'graphviz'
   }
 
     stages {
@@ -63,6 +64,7 @@ pipeline {
 				script{
 					bat """
 						python -m cProfile -o profile.pstats src/hello_world.py
+						gprof2dot -f pstats profile.pstats | ${graphviz}\\bin\\dot -Tpng -o out1.png
 					"""
 						
 				}
