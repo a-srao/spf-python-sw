@@ -28,7 +28,7 @@ pipeline {
   }
 
     stages {
-        stage('Init SonarQube settings') {
+        stage('Init') {
             parallel {
                 stage('PR') {
                     when { changeRequest() }
@@ -50,22 +50,55 @@ pipeline {
                 }
             }
         }
-        stage('Setup python env ') {
-            steps {
-                script {
-                    if ( isUnix()) {
-                        echo 'Setup python env on Linux'
-                        sh '''
-                        module load python/3.9
-                        python -m pip install -r ${req_txt}
-                        '''
+        stage('pipeline start') {
+            parallel{
+                stage ('Linux'){
+                    when { expression { return isUnix != True;}}
+                    stages {
+                        stage ('stage1'){
+                            steps {
+                                 echo "This is linux pipeline"
+                            }
+                        }
+                        stage ('stage2'){
+                            steps {
+                                 echo "This is linux pipeline"
+                            }
+                        }
                     }
-                    else {
-                        echo 'Setup python env on Windows'
-                        bat "python -m pip install -r ${req_txt}"
+                    
+                }
+                stage ('Windows'){
+                    when { expression { return isUnix != False;}}
+                    stages {
+                        stage ('stage1'){
+                            steps {
+                                 echo "This is linux pipeline"
+                            }
+                        }
+                        stage ('stage2'){
+                            steps {
+                                 echo "This is linux pipeline"
+                            }
+                        }
                     }
                 }
             }
+            // steps {
+            //     script {
+            //         if ( isUnix()) {
+            //             echo 'Setup python env on Linux'
+            //             sh '''
+            //             module load python/3.9
+            //             python -m pip install -r ${req_txt}
+            //             '''
+            //         }
+            //         else {
+            //             echo 'Setup python env on Windows'
+            //             bat "python -m pip install -r ${req_txt}"
+            //         }
+            //     }
+            // }
         }
         stage('Build project') {
             steps {
