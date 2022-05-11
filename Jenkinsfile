@@ -70,75 +70,51 @@ pipeline {
                 stage ('Windows'){
                     when { environment name: 'OS', value: 'Windows_NT' } //Check is the running node is windows
                     stages {
-                        stage ('stage1'){
+                        stage('Build project') {
                             steps {
-                                 echo "This is Windows pipeline"
+                                script {
+                                    echo 'Generating Built artifact'  // Placeholder. May not be required for python
+                                }
                             }
                         }
-                        stage ('stage2'){
+                        stage('Test and Coverage'){
                             steps {
-                                 echo "This is Windows pipeline"
+                                script {
+                                    bat """
+                                    coverage run --omit=*/test/* --source ${source_files} --branch -m pytest --cache-clear --junitxml ${sonar_python_reportPath} ${test_files}
+                                    coverage html -d coverage_html
+                                    coverage xml -o ${sonar_python_coverage_reportPath}
+                                    """
+                                }
+                            }
+                        }
+                        stage('Static Code Analysis - PyLint'){
+                            steps {
+                                script {
+                                    bat """
+                                    python -m pylint -r n --msg-template="{path}:{line}: [{msg_id}({symbol}), {obj}] {msg}" ./${source_files} > ${sonar_python_pylint_report}
+                                    exit 0
+                                    """
+                                }
+                            }
+                        }
+                        stage("StaticCodeAnalyser - SonarQube"){
+                            steps {
+                                script {
+                                    withSonarQubeEnv ("${sonar_server_instance}") {
+                                        bat """
+                                            $sonarscanner\\bin\\sonar-scanner.bat  $sonar_parameters
+                                            """
+                                    }
+                                }
                             }
                         }
                     }
                 }
             }
-            // steps {
-            //     script {
-            //         if ( isUnix()) {
-            //             echo 'Setup python env on Linux'
-            //             sh '''
-            //             module load python/3.9
-            //             python -m pip install -r ${req_txt}
-            //             '''
-            //         }
-            //         else {
-            //             echo 'Setup python env on Windows'
-            //             bat "python -m pip install -r ${req_txt}"
-            //         }
-            //     }
-            // }
         }
-        stage('Build project') {
-            steps {
-                script {
-                    echo 'Generating Built artifact'  // Placeholder. May not be required for python
-                }
-            }
-        }
-        stage('Test and Coverage'){
-            steps {
-                script {
-					bat """
-                    coverage run --omit=*/test/* --source ${source_files} --branch -m pytest --cache-clear --junitxml ${sonar_python_reportPath} ${test_files}
-                    coverage html -d coverage_html
-                    coverage xml -o ${sonar_python_coverage_reportPath}
-                    """
-                }
-            }
-        }
-        stage('Static Code Analysis - PyLint'){
-            steps {
-                script {
-					bat """
-                    python -m pylint -r n --msg-template="{path}:{line}: [{msg_id}({symbol}), {obj}] {msg}" ./${source_files} > ${sonar_python_pylint_report}
-                    exit 0
-                    """
-                }
-            }
-        }
-		stage("StaticCodeAnalyser - SonarQube"){
-			steps {
-				script {
-					withSonarQubeEnv ("${sonar_server_instance}") {
-						bat """
-						    $sonarscanner\\bin\\sonar-scanner.bat  $sonar_parameters
-						    """
-					}
-				}
-			}
-		}
         stage("Quality Gate"){  // this should be enabled in conjunction with SonarQube Webhooks
+            when { environment name: 'OS', value: 'Windows_NT' }
             steps {
                 timeout(time: 1, unit: 'HOURS') { // Just in case something goes wrong, pipeline will be killed after a timeout
                     script {
