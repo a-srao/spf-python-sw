@@ -19,7 +19,6 @@ def sonar_python_reportPath="pytest.xml"
 def sonar_python_coverage_reportPath="coverage.xml"
 def sonar_python_pylint_report = "pylint.xml"
 sonar_parameters=" -X -Dsonar.projectKey=$sonar_projectKey -Dsonar.projectName=$sonar_projectName -Dsonar.projectBaseDir=$sonar_projectBaseDir -Dsonar.sources=$source_files -Dsonar.exclusions=$sonar_exclusions  -Dsonar.coverage.exclusions=$sonar_coverage_exclusions -Dsonar.python.xunit.reportPath=$sonar_python_reportPath -Dsonar.python.coverage.reportPaths=$sonar_python_coverage_reportPath -Dsonar.python.pylint.reportPath=$sonar_python_pylint_report "
-
 						
 pipeline {
     agent { label "${node}" }
@@ -50,35 +49,35 @@ pipeline {
                 }
             }
         }
-        stage('pipeline start') {
+        stage('Pipeline Execution') {
             parallel{
                 stage ('Linux'){
-                    when { expression { return isUnix() != 'True';}}
+                    when { environment name: 'OS', value: '' }  //Check is the running node is non-windows
                     stages {
                         stage ('stage1'){
                             steps {
-                                 echo "This is linux pipeline"
+                                 echo "This is Linux pipeline"
                             }
                         }
                         stage ('stage2'){
                             steps {
-                                 echo "This is linux pipeline"
+                                 echo "This is Linux pipeline"
                             }
                         }
                     }
                     
                 }
                 stage ('Windows'){
-                    when { expression { return isUnix() != 'False';}}
+                    when { environment name: 'OS', value: 'Windows_NT' } //Check is the running node is windows
                     stages {
                         stage ('stage1'){
                             steps {
-                                 echo "This is linux pipeline"
+                                 echo "This is Windows pipeline"
                             }
                         }
                         stage ('stage2'){
                             steps {
-                                 echo "This is linux pipeline"
+                                 echo "This is Windows pipeline"
                             }
                         }
                     }
