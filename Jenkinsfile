@@ -53,7 +53,7 @@ pipeline {
         stage('pipeline start') {
             parallel{
                 stage ('Linux'){
-                    when { expression { return isUnix != True;}}
+                    when { expression { return isUnix() != True;}}
                     stages {
                         stage ('stage1'){
                             steps {
@@ -69,7 +69,7 @@ pipeline {
                     
                 }
                 stage ('Windows'){
-                    when { expression { return isUnix != False;}}
+                    when { expression { return isUnix() != False;}}
                     stages {
                         stage ('stage1'){
                             steps {
