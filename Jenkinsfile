@@ -63,8 +63,9 @@ pipeline {
 			steps{
 				script{
 					bat """
-						python -m cProfile -o profile.pstats src/hello_world.py
-						gprof2dot -f pstats profile.pstats | ${graphviz}\\bin\\dot -Tpng -o out1.png
+						D://slave//workspace//ting_feature_Unit-Perf-TestTools//scripts//windows//profile.bat
+						
+						
 					"""
 						
 				}
@@ -82,9 +83,9 @@ pipeline {
             steps {
                 script {
 					bat """
-                    coverage run --omit=*/test/* --source ${source_files} --branch -m pytest --cache-clear --junitxml ${sonar_python_reportPath} ${test_files}
-                    coverage html -d coverage_html
-                    coverage xml -o ${sonar_python_coverage_reportPath}
+					
+                    D://slave//workspace//ting_feature_Unit-Perf-TestTools//scripts//windows//unittest.bat
+                    
                     """
                 }
             }
