@@ -5,7 +5,8 @@ def test_files = "test"  // directory in which python source files exist
 def req_txt = "config/python/requirements.txt" // requirements.txt location
 
 // Jenkins specific configurations
-def sonar_scanner_toolname = 'sonar-scanner-cli-4.6.0.2311-windows' // Scanner toolname as configured in Jenkins
+def sonar_scanner_toolname_win = 'sonar-scanner-cli-4.6.0.2311-windows' // Scanner toolname as configured in Jenkins for windows
+def sonar_scanner_toolname_linux = 'sonar-scanner-cli-4.6.0.2311-linux' // Scanner toolname as configured in Jenkins for linux
 def sonar_server_instance = 'sonar-ee' //instance name configured on Jenkins
 
 //Sonar properties
@@ -22,9 +23,6 @@ sonar_parameters=" -X -Dsonar.projectKey=$sonar_projectKey -Dsonar.projectName=$
 						
 pipeline {
     agent { label "${node}" }
-    environment {
-    sonarscanner = tool name: "${sonar_scanner_toolname}"
-  }
 
     stages {
         stage('Init') {
@@ -54,14 +52,36 @@ pipeline {
                 stage ('Linux'){
                     when { environment name: 'OS', value: '' }  //Check is the running node is non-windows
                     stages {
-                        stage ('stage1'){
+                        stage('Build project') {
                             steps {
-                                 echo "This is Linux pipeline"
+                                echo 'Generating Built artifact'  // Placeholder. May not be required for python
                             }
                         }
-                        stage ('stage2'){
+                        stage('Test and Coverage'){
                             steps {
-                                 echo "This is Linux pipeline"
+                                echo 'Execute test and generate coverage'  // Placeholder. May not be required for python
+                            }
+                        }
+                        stage('SCA - PyLint'){
+                            steps {
+                                script {
+                                echo 'Execute pylint'  // Placeholder. May not be required for python
+                                }
+                            }
+                        }
+                        stage("SCA - SonarQube"){
+                            environment {
+                                sonarscanner = tool name: "${sonar_scanner_toolname_linux}"
+                            }
+                            steps {
+                                script {
+                                    withSonarQubeEnv ("${sonar_server_instance}") {
+                                        echo "analyse sonarqube. uncomment below code to enable"
+                                        // sh """
+                                        //     $sonarscanner\\bin\\sonar-scanner  $sonar_parameters
+                                        //     """
+                                    }
+                                }
                             }
                         }
                     }
@@ -79,32 +99,25 @@ pipeline {
                         }
                         stage('Test and Coverage'){
                             steps {
-                                script {
-                                    bat """
-                                    coverage run --omit=*/test/* --source ${source_files} --branch -m pytest --cache-clear --junitxml ${sonar_python_reportPath} ${test_files}
-                                    coverage html -d coverage_html
-                                    coverage xml -o ${sonar_python_coverage_reportPath}
-                                    """
-                                }
+                                echo 'Execute test and generate coverage'  // Placeholder. May not be required for python
                             }
                         }
                         stage('Static Code Analysis - PyLint'){
                             steps {
-                                script {
-                                    bat """
-                                    python -m pylint -r n --msg-template="{path}:{line}: [{msg_id}({symbol}), {obj}] {msg}" ./${source_files} > ${sonar_python_pylint_report}
-                                    exit 0
-                                    """
-                                }
+                                echo 'Execute pylint'  // Placeholder. May not be required for python
                             }
                         }
-                        stage("StaticCodeAnalyser - SonarQube"){
+                        stage("SCA - SonarQube"){
+                            environment {
+                                sonarscanner = tool name: "${sonar_scanner_toolname_windows}"
+                            }
                             steps {
                                 script {
                                     withSonarQubeEnv ("${sonar_server_instance}") {
-                                        bat """
-                                            $sonarscanner\\bin\\sonar-scanner.bat  $sonar_parameters
-                                            """
+                                        echo "analyse sonarqube. uncomment below code to enable"
+                                        // bat """
+                                        //     $sonarscanner\\bin\\sonar-scanner.bat  $sonar_parameters
+                                        //     """
                                     }
                                 }
                             }
@@ -113,19 +126,19 @@ pipeline {
                 }
             }
         }
-        stage("Quality Gate"){  // this should be enabled in conjunction with SonarQube Webhooks
-            when { environment name: 'OS', value: 'Windows_NT' }
-            steps {
-                timeout(time: 1, unit: 'HOURS') { // Just in case something goes wrong, pipeline will be killed after a timeout
-                    script {
-                        def qg = waitForQualityGate abortPipeline: true// Reuse taskId previously collected by withSonarQubeEnv
-                        if (qg.status != 'OK') {
-                            error "Pipeline aborted due to quality gate failure: ${qg.status}"
-                        }
-                    }
-                }
-            }
-        }
+        // Uncomment this code for production
+        // stage('SonarQube Quality Gate') {
+        //     steps {
+        //         timeout(time: 1, unit: 'HOURS') { // Just in case something goes wrong, pipeline will be killed after a timeout
+        //             script {
+        //                 def qg = waitForQualityGate abortPipeline: true// Reuse taskId previously collected by withSonarQubeEnv
+        //                 if (qg.status != 'OK') {
+        //                     error "Pipeline aborted due to quality gate failure: ${qg.status}"
+        //                 }
+        //             }
+        //         }
+        //     }
+        // }
        stage('Upload Artifacts') {
             steps {
                 script {
