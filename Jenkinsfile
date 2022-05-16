@@ -83,7 +83,7 @@ pipeline {
                 script {
 					bat """
 					
-                    D://slave//workspace//ting_feature_Unit-Perf-TestTools//scripts//windows//unittest.bat
+                    .\\scripts\\windows\\unittest.bat
                     
                     """
                 }
