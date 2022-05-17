@@ -125,13 +125,8 @@ pipeline {
                         }
                         stage('Static Code Analysis - PyLint'){
                             steps {
-								script {
-									bat """
-									python -m pylint -r n --msg-template="{path}:{line}: [{msg_id}({symbol}), {obj}] {msg}" ./${source_files} > ${sonar_python_pylint_report}
-									exit 0
-									"""
-								}
-							}
+                                echo 'Execute pylint'  // Placeholder. May not be required for python
+                            }
                         }
                         stage("SCA - SonarQube"){
                             environment {
