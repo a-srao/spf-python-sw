@@ -110,8 +110,7 @@ pipeline {
                                 script {
                                     echo 'Execute pylint on Windows enviornment'
                                     bat """
-                                    python -m pylint -r n --msg-template="{path}:{line}: [{msg_id}({symbol}), {obj}] {msg}" ./${source_files} > ${sonar_python_pylint_report}
-                                    exit 0
+                                    runPylint.bat $source_files $sonar_python_pylint_report
                                     """
                                 }
                             }
