@@ -5,7 +5,7 @@ def test_files = "test"  // directory in which python source files exist
 def req_txt = "config/python/requirements.txt" // requirements.txt location
 
 // Jenkins specific configurations
-def sonar_scanner_toolname_win = 'sonar-scanner-cli-4.6.0.2311-windows' // Scanner toolname as configured in Jenkins for windows
+def sonar_scanner_toolname_windows = 'sonar-scanner-cli-4.6.0.2311-windows' // Scanner toolname as configured in Jenkins for windows
 def sonar_scanner_toolname_linux = 'sonar-scanner-cli-4.6.0.2311-linux' // Scanner toolname as configured in Jenkins for linux
 def sonar_server_instance = 'sonar-ee' //instance name configured on Jenkins
 
