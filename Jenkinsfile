@@ -103,24 +103,20 @@ pipeline {
                         }
 						stage('Profile'){
 							steps{
-								script{
 									bat """
 									python -m cProfile -o profile.pstats src/hello_world.py
 									gprof2dot -f pstats profile.pstats | ${graphviz}\\bin\\dot -Tpng -o out1.png
 								    """
 				                }
-			                }
 		
 		                }
                         stage('Test and Coverage'){
                             steps {
-								script {
 									bat """
 					
 									.\\scripts\\windows\\unittest.bat
                     
 									"""
-								}
 							}
                         }
                         stage('Static Code Analysis - PyLint'){
