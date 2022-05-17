@@ -65,7 +65,11 @@ pipeline {
                         stage('SCA - PyLint'){
                             steps {
                                 script {
-                                echo 'Execute pylint'  // Placeholder. May not be required for python
+                                    echo 'Execute pylint on Windows enviornment'
+                                    sh '''
+                                    python -m pylint -r n --msg-template="{path}:{line}: [{msg_id}({symbol}), {obj}] {msg}" ./${source_files} > ${sonar_python_pylint_report}
+                                    exit 0
+                                    '''
                                 }
                             }
                         }
@@ -77,9 +81,9 @@ pipeline {
                                 script {
                                     withSonarQubeEnv ("${sonar_server_instance}") {
                                         echo "analyse sonarqube. uncomment below code to enable"
-                                        // sh """
-                                        //     $sonarscanner\\bin\\sonar-scanner  $sonar_parameters
-                                        //     """
+                                        sh """
+                                        $sonarscanner\\bin\\sonar-scanner  $sonar_parameters
+                                        """
                                     }
                                 }
                             }
@@ -104,7 +108,13 @@ pipeline {
                         }
                         stage('Static Code Analysis - PyLint'){
                             steps {
-                                echo 'Execute pylint'  // Placeholder. May not be required for python
+                                script {
+                                    echo 'Execute pylint on Windows enviornment'
+                                    bat """
+                                    python -m pylint -r n --msg-template="{path}:{line}: [{msg_id}({symbol}), {obj}] {msg}" ./${source_files} > ${sonar_python_pylint_report}
+                                    exit 0
+                                    """
+                                }
                             }
                         }
                         stage("SCA - SonarQube"){
@@ -114,10 +124,10 @@ pipeline {
                             steps {
                                 script {
                                     withSonarQubeEnv ("${sonar_server_instance}") {
-                                        echo "analyse sonarqube. uncomment below code to enable"
-                                        // bat """
-                                        //     $sonarscanner\\bin\\sonar-scanner.bat  $sonar_parameters
-                                        //     """
+                                        echo "analyse sonarqube"
+                                        bat """
+                                        $sonarscanner\\bin\\sonar-scanner.bat  $sonar_parameters
+                                        """
                                     }
                                 }
                             }
