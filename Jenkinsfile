@@ -66,6 +66,11 @@ pipeline {
                                 sh 'scripts/linux/unittest.sh'  // Placeholder. May not be required for python
                             }
                         }
+                        stage('Generate Technical Doc'){    // Not required for CI Pipeline.
+                            steps {
+                                sh 'config/sphinx/runSphinx.sh'
+                            }
+                        }
                         stage('SCA - PyLint'){
                             steps {
                                 script {
@@ -122,6 +127,11 @@ pipeline {
                     
 									"""
 							}
+                        }
+                        stage('Generate Technical Doc'){    // Not required for CI Pipeline.
+                            steps {
+                                sh 'config\\sphinx\\runSphinx.bat'
+                            }
                         }
                         stage('Static Code Analysis - PyLint'){
                             steps {
