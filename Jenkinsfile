@@ -85,7 +85,7 @@ pipeline {
                                     withSonarQubeEnv ("${sonar_server_instance}") {
                                         echo "analyse sonarqube"
                                         sh """
-                                        $sonarscanner/bin//sonar-scanner  $sonar_parameters
+                                        $sonarscanner/bin/sonar-scanner  $sonar_parameters
                                         """
                                     }
                                 }
