@@ -1,5 +1,5 @@
-def node = 'Build-d001_EJ-019-64W10-12' //Node on which build should execute
-//def node = 'spf01_build-d001-cent7-x64-v' //Node on which build should execute
+def win_node = 'Build-d001_EJ-019-64W10-12' //Node on which build should execute
+def linux_node = 'spf01_build-d001-cent7-x64-v' //Node on which build should execute
 def source_files = "src"  // directory in which python source files exist
 def test_files = "test"  // directory in which python source files exist
 def req_txt = "config/python/requirements.txt" // requirements.txt location
@@ -54,6 +54,7 @@ pipeline {
         stage('Pipeline Execution') {
             parallel{
                 stage ('Linux'){
+                    agent { label "${linux_node}" }
                     when { environment name: 'OS', value: '' }  //Check is the running node is non-windows
                     stages {
                         stage('Build project') {
@@ -63,7 +64,7 @@ pipeline {
                         }         
                         stage('Test and Coverage'){
                             steps {
-                                echo 'Execute test and generate coverage'  // Placeholder. May not be required for python
+                                sh 'scripts\\linux\\unittest.sh'  // Placeholder. May not be required for python
                             }
                         }
                         stage('SCA - PyLint'){
@@ -92,6 +93,7 @@ pipeline {
                     
                 }
                 stage ('Windows'){
+                    agent { label "${win_node}" }
                     when { environment name: 'OS', value: 'Windows_NT' } //Check is the running node is windows
                     stages {
                         stage('Build project') {
