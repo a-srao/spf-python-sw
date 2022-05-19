@@ -63,7 +63,7 @@ pipeline {
                         }         
                         stage('Test and Coverage'){
                             steps {
-                                sh 'scripts\\linux\\unittest.sh'  // Placeholder. May not be required for python
+                                sh 'scripts/linux/unittest.sh'  // Placeholder. May not be required for python
                             }
                         }
                         stage('SCA - PyLint'){
