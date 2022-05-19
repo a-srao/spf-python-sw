@@ -71,7 +71,7 @@ pipeline {
                                 script {
                                     echo 'Execute pylint on Linux enviornment'
                                     sh """
-                                    ./scripts/linux/runPylint.sh $source_files $sonar_python_reportPath
+                                    ./scripts/linux/runPylint.sh  $source_files $sonar_python_pylint_report
                                     """
                                 }
                             }
