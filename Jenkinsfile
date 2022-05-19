@@ -66,10 +66,18 @@ pipeline {
                                 sh 'scripts/linux/unittest.sh'  // Placeholder. May not be required for python
                             }
                         }
+                        stage('Generate Technical Doc'){    // Not required for CI Pipeline.
+                            steps {
+                                sh 'config/sphinx/runSphinx.sh'
+                            }
+                        }
                         stage('SCA - PyLint'){
                             steps {
                                 script {
-                                echo 'Execute pylint'  // Placeholder. May not be required for python
+                                    echo 'Execute pylint on Linux enviornment'
+                                    sh """
+                                    ./scripts/linux/runPylint.sh  $source_files $sonar_python_pylint_report
+                                    """
                                 }
                             }
                         }
@@ -80,10 +88,10 @@ pipeline {
                             steps {
                                 script {
                                     withSonarQubeEnv ("${sonar_server_instance}") {
-                                        echo "analyse sonarqube. uncomment below code to enable"
-                                        // sh """
-                                        //     $sonarscanner\\bin\\sonar-scanner  $sonar_parameters
-                                        //     """
+                                        echo "analyse sonarqube"
+                                        sh """
+                                        $sonarscanner/bin/sonar-scanner  $sonar_parameters
+                                        """
                                     }
                                 }
                             }
@@ -120,9 +128,19 @@ pipeline {
 									"""
 							}
                         }
+                        stage('Generate Technical Doc'){    // Not required for CI Pipeline.
+                            steps {
+                                bat "config\\sphinx\\runSphinx.bat"
+                            }
+                        }
                         stage('Static Code Analysis - PyLint'){
                             steps {
-                                echo 'Execute pylint'  // Placeholder. May not be required for python
+                                script {
+                                    echo 'Execute pylint on Windows enviornment'
+                                    bat """
+                                    .\\scripts\\windows\\runPylint.bat $source_files $sonar_python_pylint_report
+                                    """
+                                }
                             }
                         }
                         stage("SCA - SonarQube"){
@@ -132,10 +150,10 @@ pipeline {
                             steps {
                                 script {
                                     withSonarQubeEnv ("${sonar_server_instance}") {
-                                        //echo "analyse sonarqube. uncomment below code to enable"
-                                         bat """
-                                             $sonarscanner\\bin\\sonar-scanner.bat  $sonar_parameters
-                                             """
+                                        echo "analyse sonarqube"
+                                        bat """
+                                        $sonarscanner\\bin\\sonar-scanner.bat  $sonar_parameters
+                                        """
                                     }
                                 }
                             }

@@ -5,5 +5,7 @@ graphviz
 coverage>=5.3
 pytest>=6.1.1
 pylint
+sphinx
+sphinx-rtd-theme
 pytest-regressions
 pytest-html
