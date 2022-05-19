@@ -1,11 +1,11 @@
-// def node = 'Build-d001_EJ-019-64W10-12' //Node on which build should execute
-def node = 'spf01_build-d001-cent7-x64-v' //Node on which build should execute
+def win_node = 'Build-d001_EJ-019-64W10-12' //Node on which build should execute
+def linux_node = 'spf01_build-d001-cent7-x64-v' //Node on which build should execute
 def source_files = "src"  // directory in which python source files exist
 def test_files = "test"  // directory in which python source files exist
 def req_txt = "config/python/requirements.txt" // requirements.txt location
 
 // Jenkins specific configurations
-def sonar_scanner_toolname_win = 'sonar-scanner-cli-4.6.0.2311-windows' // Scanner toolname as configured in Jenkins for windows
+def sonar_scanner_toolname_windows = 'sonar-scanner-cli-4.6.0.2311-windows' // Scanner toolname as configured in Jenkins for windows
 def sonar_scanner_toolname_linux = 'sonar-scanner-cli-4.6.0.2311-linux' // Scanner toolname as configured in Jenkins for linux
 def sonar_server_instance = 'sonar-ee' //instance name configured on Jenkins
 
@@ -22,7 +22,10 @@ def sonar_python_pylint_report = "pylint.xml"
 sonar_parameters=" -X -Dsonar.projectKey=$sonar_projectKey -Dsonar.projectName=$sonar_projectName -Dsonar.projectBaseDir=$sonar_projectBaseDir -Dsonar.sources=$source_files -Dsonar.exclusions=$sonar_exclusions  -Dsonar.coverage.exclusions=$sonar_coverage_exclusions -Dsonar.python.xunit.reportPath=$sonar_python_reportPath -Dsonar.python.coverage.reportPaths=$sonar_python_coverage_reportPath -Dsonar.python.pylint.reportPath=$sonar_python_pylint_report "
 						
 pipeline {
-    agent { label "${node}" }
+    agent any
+	environment {
+    graphviz= tool 'graphviz'
+  }
 
     stages {
         stage('Init') {
@@ -50,16 +53,17 @@ pipeline {
         stage('Pipeline Execution') {
             parallel{
                 stage ('Linux'){
+                    agent { label "${linux_node}" }
                     when { environment name: 'OS', value: '' }  //Check is the running node is non-windows
                     stages {
                         stage('Build project') {
                             steps {
                                 echo 'Generating Built artifact'  // Placeholder. May not be required for python
                             }
-                        }
+                        }         
                         stage('Test and Coverage'){
                             steps {
-                                echo 'Execute test and generate coverage'  // Placeholder. May not be required for python
+                                sh 'scripts/linux/unittest.sh'  // Placeholder. May not be required for python
                             }
                         }
                         stage('SCA - PyLint'){
@@ -91,6 +95,7 @@ pipeline {
                     
                 }
                 stage ('Windows'){
+                    agent { label "${win_node}" }
                     when { environment name: 'OS', value: 'Windows_NT' } //Check is the running node is windows
                     stages {
                         stage('Build project') {
@@ -100,10 +105,23 @@ pipeline {
                                 }
                             }
                         }
+						stage('Profile'){
+							steps{
+									bat """
+									python -m cProfile -o profile.pstats src/hello_world.py
+									gprof2dot -f pstats profile.pstats | ${graphviz}\\bin\\dot -Tpng -o out1.png
+								    """
+				                }
+		
+		                }
                         stage('Test and Coverage'){
                             steps {
-                                echo 'Execute test and generate coverage'  // Placeholder. May not be required for python
-                            }
+									bat """
+					
+									.\\scripts\\windows\\unittest.bat
+                    
+									"""
+							}
                         }
                         stage('Static Code Analysis - PyLint'){
                             steps {

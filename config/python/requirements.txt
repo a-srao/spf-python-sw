@@ -1,7 +1,11 @@
 --index-url https://artifactory.intra.infineon.com/artifactory/api/pypi/pypi-pypi-org/simple
 ## Put the required package here
+gprof2dot
+graphviz
 coverage>=5.3
 pytest>=6.1.1
 pylint
 sphinx
 sphinx-rtd-theme
+pytest-regressions
+pytest-html
