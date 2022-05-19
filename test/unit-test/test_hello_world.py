@@ -1,14 +1,15 @@
 """Test case for the bitbucket script"""
 import sys, os.path
 from unittest import TestCase
+
 from unittest.mock import Mock, call, patch, MagicMock
 
-dut_path = os.path.realpath("{}/../src".format(os.path.dirname(__file__)))
+dut_path = os.path.realpath("{}/../../src".format(os.path.dirname(__file__)))
 if dut_path not in sys.path:
     sys.path.insert(0, dut_path)
 
-import hello_world
 
+import hello_world
 
 class TestBranchingModel(TestCase):
     """Test case for the bitbucket script"""
