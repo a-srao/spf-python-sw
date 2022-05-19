@@ -11,5 +11,5 @@ REM "Setting up the enviornment"
 python -m pip install -r config/python/requirements.txt
 
 REM "Executing pylint for static code analysis report"
-python -m pylint -r n --msg-template="{path}:{line}: [{msg_id}({symbol}), {obj}] {msg}" %source_files% > %sonar_python_pylint_report%
+python -m pylint  --exit-zero -r n --msg-template="{path}:{line}: [{msg_id}({symbol}), {obj}] {msg}" %source_files% > %sonar_python_pylint_report%
 
