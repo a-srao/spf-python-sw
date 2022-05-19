@@ -71,7 +71,7 @@ pipeline {
                                 script {
                                     echo 'Execute pylint on Linux enviornment'
                                     sh """
-                                    ./runPylint.sh $source_files $sonar_python_reportPath
+                                    ./scripts/linux/runPylint.sh $source_files $sonar_python_reportPath
                                     """
                                 }
                             }
@@ -128,7 +128,7 @@ pipeline {
                                 script {
                                     echo 'Execute pylint on Windows enviornment'
                                     bat """
-                                    .\\runPylint.bat $source_files $sonar_python_pylint_report
+                                    .\\scripts\\linux\\runPylint.bat $source_files $sonar_python_pylint_report
                                     """
                                 }
                             }

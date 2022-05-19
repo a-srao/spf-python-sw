@@ -1,5 +1,5 @@
 #!/bin/tcsh
-
+set echo
 set source_files=$argv[1]
 set sonar_python_pylint_report=$argv[2]
 
