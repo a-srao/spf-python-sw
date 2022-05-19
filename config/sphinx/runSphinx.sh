@@ -10,6 +10,7 @@ echo "Python interpreter should be set when script is executed"
 
 echo "Setting up the enviornments for SPHINX"
 python -m pip install -r config/python/requirements.txt
+
 pushd `pwd`
 cd config/sphinx
 echo  "Generate and edit reStructured text (.rst) files"
