@@ -22,7 +22,7 @@ def sonar_python_pylint_report = "pylint.xml"
 sonar_parameters=" -X -Dsonar.projectKey=$sonar_projectKey -Dsonar.projectName=$sonar_projectName -Dsonar.projectBaseDir=$sonar_projectBaseDir -Dsonar.sources=$source_files -Dsonar.exclusions=$sonar_exclusions  -Dsonar.coverage.exclusions=$sonar_coverage_exclusions -Dsonar.python.xunit.reportPath=$sonar_python_reportPath -Dsonar.python.coverage.reportPaths=$sonar_python_coverage_reportPath -Dsonar.python.pylint.reportPath=$sonar_python_pylint_report "
 						
 pipeline {
-    agent any
+    agent { label "${win_node}" }
 	environment {
     graphviz= tool 'graphviz'
   }
@@ -175,13 +175,32 @@ pipeline {
         //         }
         //     }
         // }
-       stage('Upload Artifacts') {
+        stage('Copy File to Artifactory') {
+            steps {
+                script {
+                    bat """
+                        type NUL > empty1.txt
+                        """
+                    server = Artifactory.server 'Artifactory'
+                        def copy = """{
+                             "files": [
+                                        {
+                                        "pattern": "empty1.txt",
+                                        "target": "gen-des-spf-local/"
+                                        }
+                            ]}""" // Placeholder. May not be required for python
+                            server.upload(copy)
+                    }
+                }
+            }
+        stage('Upload Artifacts') {
             steps {
                 script {
                     echo 'Uploading Built artifact' // Placeholder. May not be required for python
                 }
             }
-        }
+        }    
+            
         stage('Release') {
             when { branch 'master' }
             stages {
