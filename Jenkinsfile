@@ -179,7 +179,7 @@ pipeline {
             steps {
                 script {
                     bat """
-                        type NUL > empty1.txt // creating a empty file 
+                        type NUL > empty1.txt
                         """
                     server = Artifactory.server 'Artifactory'  // name configured in Manage Jenkins-> Configuration
                         def copy = """{
