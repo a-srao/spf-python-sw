@@ -179,13 +179,13 @@ pipeline {
             steps {
                 script {
                     bat """
-                        type NUL > empty1.txt
+                        type NUL > empty1.txt // creating a empty file 
                         """
-                    server = Artifactory.server 'Artifactory'
+                    server = Artifactory.server 'Artifactory'  // name configured in Manage Jenkins-> Configuration
                         def copy = """{
                              "files": [
                                         {
-                                        "pattern": "empty1.txt",
+                                        "pattern": "empty1.txt", 
                                         "target": "gen-des-spf-local/"
                                         }
                             ]}""" // Placeholder. May not be required for python
