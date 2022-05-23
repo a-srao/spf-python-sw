@@ -8,4 +8,5 @@ pylint
 sphinx
 sphinx-rtd-theme
 pytest-regressions
+pytest-regtest
 pytest-html
