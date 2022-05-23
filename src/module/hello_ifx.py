@@ -1,4 +1,4 @@
-"""hello_IFX 
+"""hello_IFX
 This module is a hello world demo
 """
 
