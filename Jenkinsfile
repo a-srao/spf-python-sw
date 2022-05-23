@@ -96,8 +96,19 @@ pipeline {
                                 }
                             }
                         }
+                        stage('SonarQube Quality Gate') {
+                            steps {
+                                timeout(time: 1, unit: 'HOURS') { // Just in case something goes wrong, pipeline will be killed after a timeout
+                                    script {
+                                        def qg = waitForQualityGate abortPipeline: true// Reuse taskId previously collected by withSonarQubeEnv
+                                        if (qg.status != 'OK') {
+                                            error "Pipeline aborted due to quality gate failure: ${qg.status}"
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
-                    
                 }
                 stage ('Windows'){
                     agent { label "${win_node}" }
@@ -163,18 +174,6 @@ pipeline {
             }
         }
         // Uncomment this code for production
-        // stage('SonarQube Quality Gate') {
-        //     steps {
-        //         timeout(time: 1, unit: 'HOURS') { // Just in case something goes wrong, pipeline will be killed after a timeout
-        //             script {
-        //                 def qg = waitForQualityGate abortPipeline: true// Reuse taskId previously collected by withSonarQubeEnv
-        //                 if (qg.status != 'OK') {
-        //                     error "Pipeline aborted due to quality gate failure: ${qg.status}"
-        //                 }
-        //             }
-        //         }
-        //     }
-        // }
        stage('Upload Artifacts') {
             steps {
                 script {
