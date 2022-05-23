@@ -54,7 +54,7 @@ pipeline {
             parallel{
                 stage ('Linux'){
                     agent { label "${linux_node}" }
-                    when { environment name: 'OS', value: '' }  //Check is the running node is non-windows
+                    when { environment name: 'OS', value: '' }  //Check if the running node is non-windows
                     stages {
                         stage('Build project') {
                             steps {
@@ -63,22 +63,17 @@ pipeline {
                         }         
                         stage('Test and Coverage'){
                             steps {
-                                sh 'scripts/linux/unittest.sh'  // Placeholder. May not be required for python
+                                sh 'scripts/linux/unittest.sh'  
                             }
                         }
-                        stage('Generate Technical Doc'){    // Not required for CI Pipeline.
+                        stage('Regression Tests'){         // This may be removed from CI
                             steps {
-                                sh 'config/sphinx/runSphinx.sh'
+                                sh 'scripts/linux/regressiontest.sh'
                             }
                         }
                         stage('SCA - PyLint'){
                             steps {
-                                script {
-                                    echo 'Execute pylint on Linux enviornment'
-                                    sh """
-                                    ./scripts/linux/runPylint.sh  $source_files $sonar_python_pylint_report
-                                    """
-                                }
+                                sh "scripts/linux/runPylint.sh  $source_files $sonar_python_pylint_report"
                             }
                         }
                         stage("SCA - SonarQube"){
@@ -86,13 +81,9 @@ pipeline {
                                 sonarscanner = tool name: "${sonar_scanner_toolname_linux}"
                             }
                             steps {
-                                script {
-                                    withSonarQubeEnv ("${sonar_server_instance}") {
-                                        echo "analyse sonarqube"
-                                        sh """
-                                        $sonarscanner/bin/sonar-scanner  $sonar_parameters
-                                        """
-                                    }
+                                withSonarQubeEnv ("${sonar_server_instance}") {
+                                    echo "analyse sonarqube"
+                                    sh "$sonarscanner/bin/sonar-scanner  $sonar_parameters"
                                 }
                             }
                         }
@@ -116,42 +107,30 @@ pipeline {
                     stages {
                         stage('Build project') {
                             steps {
-                                script {
-                                    echo 'Generating Built artifact'  // Placeholder. May not be required for python
-                                }
+                                echo 'Generating Built artifact'  // Placeholder. May not be required for python
                             }
                         }
 						stage('Profile'){
 							steps{
-									bat """
-									python -m cProfile -o profile.pstats src/hello_world.py
-									gprof2dot -f pstats profile.pstats | ${graphviz}\\bin\\dot -Tpng -o out1.png
-								    """
-				                }
-		
+                                bat """
+                                python -m cProfile -o profile.pstats src/hello_world.py
+                                gprof2dot -f pstats profile.pstats | ${graphviz}\\bin\\dot -Tpng -o out1.png
+                                """
+				            }
 		                }
                         stage('Test and Coverage'){
                             steps {
-									bat """
-					
-									.\\scripts\\windows\\unittest.bat
-                    
-									"""
+                                bat "scripts\\windows\\unittest.bat"
 							}
                         }
-                        stage('Generate Technical Doc'){    // Not required for CI Pipeline.
+                        stage('Regression Tests'){         // This may be removed from CI
                             steps {
-                                bat "config\\sphinx\\runSphinx.bat"
+                                bat "scripts\\windows\\regressiontest.bat"
                             }
                         }
                         stage('Static Code Analysis - PyLint'){
                             steps {
-                                script {
-                                    echo 'Execute pylint on Windows enviornment'
-                                    bat """
-                                    .\\scripts\\windows\\runPylint.bat $source_files $sonar_python_pylint_report
-                                    """
-                                }
+                                bat "scripts\\windows\\runPylint.bat $source_files $sonar_python_pylint_report"
                             }
                         }
                         stage("SCA - SonarQube"){
@@ -159,13 +138,9 @@ pipeline {
                                 sonarscanner = tool name: "${sonar_scanner_toolname_windows}"
                             }
                             steps {
-                                script {
-                                    withSonarQubeEnv ("${sonar_server_instance}") {
-                                        echo "analyse sonarqube"
-                                        bat """
-                                        $sonarscanner\\bin\\sonar-scanner.bat  $sonar_parameters
-                                        """
-                                    }
+                                withSonarQubeEnv ("${sonar_server_instance}") {
+                                    echo "analyse sonarqube"
+                                    bat "$sonarscanner\\bin\\sonar-scanner.bat  $sonar_parameters"
                                 }
                             }
                         }
@@ -176,17 +151,16 @@ pipeline {
         // Uncomment this code for production
        stage('Upload Artifacts') {
             steps {
-                script {
-                    echo 'Uploading Built artifact' // Placeholder. May not be required for python
-                }
+                echo 'Uploading Built artifact' // Placeholder. May not be required for python
             }
         }
         stage('Release') {
             when { branch 'master' }
+            agent { label "${win_node}" } 
             stages {
-                stage('Git Tagging') {
+                stage('Generate Technical Documentation') {
                     steps {
-                        echo "git tag"
+                        bat "config\\sphinx\\runSphinx.bat"
                     }
                 }
                 stage('Promotion') {
