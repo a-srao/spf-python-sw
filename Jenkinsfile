@@ -23,10 +23,6 @@ sonar_parameters=" -X -Dsonar.projectKey=$sonar_projectKey -Dsonar.projectName=$
 						
 pipeline {
     agent any
-	environment {
-    graphviz= tool 'graphviz'
-  }
-
     stages {
         stage('Init') {
             parallel {
@@ -101,6 +97,9 @@ pipeline {
                 }
                 stage ('Windows'){
                     agent { label "${win_node}" }
+                  	environment {
+                      graphviz= tool 'graphviz'
+                    }
                     when { environment name: 'OS', value: 'Windows_NT' } //Check is the running node is windows
                     stages {
                         stage('Build project') {
