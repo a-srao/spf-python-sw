@@ -68,7 +68,7 @@ pipeline {
                         }
                         stage('Generate Technical Doc'){    // Not required for CI Pipeline.
                             steps {
-                                sh 'config/sphinx/runSphinx.sh'
+                                sh './scripts/linux/runSphinx.sh'
                             }
                         }
                         stage('SCA - PyLint'){
@@ -130,7 +130,7 @@ pipeline {
                         }
                         stage('Generate Technical Doc'){    // Not required for CI Pipeline.
                             steps {
-                                bat "config\\sphinx\\runSphinx.bat"
+                                bat ".\\scripts\\windows\\runSphinx.bat"
                             }
                         }
                         stage('Static Code Analysis - PyLint'){
