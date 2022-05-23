@@ -106,7 +106,7 @@ pipeline {
                         stage('Build project') {
                             steps {
                                 bat """
-									type NUL > sample_artifact_0.1.txt 
+									type NUL > build_2.txt 
 								"""
                             }
                         }
@@ -177,20 +177,21 @@ pipeline {
         // }
         stage('Upload Artifacts') {
             steps {
-                script {
+                script{
                     server = Artifactory.server 'Artifactory'  // name configured in Manage Jenkins-> Configuration
                         def copy = """{
                              "files": [
                                         {
-                                        "pattern": "sample_artifact_0.1.txt", 
-                                        "target": "gen-des-spf-local/artifacts/"
+                                        "pattern": "build_2.txt", 
+                                        "target": "gen-des-spf-local/artifacts/",
+                                        "recursive": "false"
                                         }
-                            ]}""" // Placeholder. May not be required for python
-                            server.upload(copy)
+                            ]}""" 
+                            server.upload(copy)// Placeholder. May not be required for python
                     }
                 }
-            }   
-            
+            }
+        
         stage('Release') {
             when { branch 'master' }
             stages {
