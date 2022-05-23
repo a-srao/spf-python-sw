@@ -183,7 +183,7 @@ pipeline {
                              "files": [
                                         {
                                         "pattern": "sample_artifact_0.1.txt", 
-                                        "target": "gen-des-spf-local/artifacts"
+                                        "target": "gen-des-spf-local/artifacts/"
                                         }
                             ]}""" // Placeholder. May not be required for python
                             server.upload(copy)
