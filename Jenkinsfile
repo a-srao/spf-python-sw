@@ -3,7 +3,7 @@ def linux_node = 'spf01_build-d001-cent7-x64-v' //Node on which build should exe
 def source_files = "src"  // directory in which python source files exist
 def test_files = "test"  // directory in which python source files exist
 def req_txt = "config/python/requirements.txt" // requirements.txt location
-
+def reports_dir="reports"  // folder where test, sca reports will be generated.
 // Jenkins specific configurations
 def sonar_scanner_toolname_windows = 'sonar-scanner-cli-4.6.0.2311-windows' // Scanner toolname as configured in Jenkins for windows
 def sonar_scanner_toolname_linux = 'sonar-scanner-cli-4.6.0.2311-linux' // Scanner toolname as configured in Jenkins for linux
@@ -14,19 +14,15 @@ def sonar_projectKey =  "spf-python-sw"
 def sonar_projectName = "spf-python-sw"
 def sonar_projectBaseDir= "." 
 def sonar_sources="." 
-def sonar_exclusions="**/reports/**"
-def sonar_coverage_exclusions="**/test/**"
-def sonar_python_reportPath="reports/pytest.xml"
-def sonar_python_coverage_reportPath="reports/coverage.xml"
-def sonar_python_pylint_report = "reports/pylint.xml"
+def sonar_exclusions="**/$reports_dir/**"
+def sonar_coverage_exclusions="**/$test_files/**"
+def sonar_python_reportPath="$reports_dir/pytest.xml"
+def sonar_python_coverage_reportPath="$reports_dir/coverage.xml"
+def sonar_python_pylint_report = "$reports_dir/pylint.xml"
 sonar_parameters=" -X -Dsonar.projectKey=$sonar_projectKey -Dsonar.projectName=$sonar_projectName -Dsonar.projectBaseDir=$sonar_projectBaseDir -Dsonar.sources=$source_files -Dsonar.exclusions=$sonar_exclusions  -Dsonar.coverage.exclusions=$sonar_coverage_exclusions -Dsonar.python.xunit.reportPath=$sonar_python_reportPath -Dsonar.python.coverage.reportPaths=$sonar_python_coverage_reportPath -Dsonar.python.pylint.reportPath=$sonar_python_pylint_report "
 						
 pipeline {
     agent any
-	environment {
-    graphviz= tool 'graphviz'
-  }
-
     stages {
         stage('Init') {
             parallel {
@@ -103,6 +99,9 @@ pipeline {
                 }
                 stage ('Windows'){
                     agent { label "${win_node}" }
+                  	environment {
+                      graphviz= tool 'graphviz'
+                    }
                     when { environment name: 'OS', value: 'Windows_NT' } //Check is the running node is windows
                     stages {
                         stage('Build project') {
@@ -148,7 +147,6 @@ pipeline {
                 }
             }
         }
-        // Uncomment this code for production
        stage('Upload Artifacts') {
             steps {
                 echo 'Uploading Built artifact' // Placeholder. May not be required for python
@@ -158,16 +156,16 @@ pipeline {
             when { branch 'master' }
             agent { label "${win_node}" } 
             stages {
-                stage('Generate Technical Documentation') {
+                stage ('Generate Technical Doc'){
                     steps {
-                        bat "config\\sphinx\\runSphinx.bat"
+                        bat "scripts\\windows\\runSphinx.bat" //for windows nodes
+                        // sh "scripts/linux/runSphinx.bat" // for linux nodes 
+                        
                     }
                 }
                 stage('Promotion') {
                     steps {
-                        script {
-                            echo 'Promote to BETA state'
-                        }
+                        echo 'Promote to BETA state'
                     }
                 }
             }
