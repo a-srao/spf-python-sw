@@ -23,10 +23,6 @@ sonar_parameters=" -X -Dsonar.projectKey=$sonar_projectKey -Dsonar.projectName=$
 						
 pipeline {
     agent any
-	environment {
-    graphviz= tool 'graphviz'
-  }
-
     stages {
         stage('Init') {
             parallel {
@@ -68,7 +64,7 @@ pipeline {
                         }
                         stage('Generate Technical Doc'){    // Not required for CI Pipeline.
                             steps {
-                                sh 'config/sphinx/runSphinx.sh'
+                                sh './scripts/linux/runSphinx.sh'
                             }
                         }
                         stage('SCA - PyLint'){
@@ -101,6 +97,9 @@ pipeline {
                 }
                 stage ('Windows'){
                     agent { label "${win_node}" }
+                  	environment {
+                      graphviz= tool 'graphviz'
+                    }
                     when { environment name: 'OS', value: 'Windows_NT' } //Check is the running node is windows
                     stages {
                         stage('Build project') {
@@ -130,7 +129,7 @@ pipeline {
                         }
                         stage('Generate Technical Doc'){    // Not required for CI Pipeline.
                             steps {
-                                bat "config\\sphinx\\runSphinx.bat"
+                                bat ".\\scripts\\windows\\runSphinx.bat"
                             }
                         }
                         stage('Static Code Analysis - PyLint'){
