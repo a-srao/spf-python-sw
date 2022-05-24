@@ -106,7 +106,7 @@ pipeline {
                     stages {
                         stage('Build project') {
                             steps {
-                                echo 'Generating Built artifact'  // Placeholder. May not be required for python
+                                bat "type NUL > build_3.txt "	
                             }
                         }
 						stage('Profile'){
@@ -143,13 +143,26 @@ pipeline {
                                 }
                             }
                         }
-                    }
+                    
+                        stage('Upload Artifacts') {
+                                steps {
+                                    script{
+                                        server = Artifactory.server 'Artifactory'  // name configured in Manage Jenkins-> Configuration
+                                            def copy = """{
+                                                "files": [
+                                                        {
+                                                        "pattern": "build_3.txt", 
+                                                        "target": "gen-des-spf-local/artifacts/",
+                                                        "recursive": "false"
+                                                    }
+                                                ]}""" 
+                                    server.upload(copy)
+                                    }
+                                }
+                            }
+                        }    
                 }
-            }
-        }
-       stage('Upload Artifacts') {
-            steps {
-                echo 'Uploading Built artifact' // Placeholder. May not be required for python
+                
             }
         }
         stage('Release') {
