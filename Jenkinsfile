@@ -142,7 +142,7 @@ pipeline {
                             }
                         }
 						
-						stage('Archive Test Report to Artifactory'){
+						stage('Archive Test Report'){
                             steps{
                                 script{
                                     bat """
@@ -150,16 +150,6 @@ pipeline {
                                      xcopy report.html .\\Testarchive
                                      """
                                      zip zipFile: 'report.zip', archive: false , dir: 'Testarchive'
-                                    server = Artifactory.server 'Artifactory'
-                                    def copy = """{
-                                    "files": [
-                                        {
-                                        "pattern": "report.zip", 
-                                        "target": "gen-des-spf-local/test/",
-                                        "recursive": "false"
-                                        }
-                                     ]}""" 
-                                server.upload(copy)
                                 }
                             }
                         }	
@@ -189,7 +179,14 @@ pipeline {
                                                     "pattern": "build_3.txt", 
                                                     "target": "gen-des-spf-local/artifacts/",
                                                     "recursive": "false"
+                                                },
+												
+												{
+                                                    "pattern": "report.zip", 
+                                                    "target": "gen-des-spf-local/test/",
+                                                    "recursive": "false"
                                                 }
+												
                                             ]}""" 
                                 server.upload(copy)
                                 }
