@@ -1,5 +1,5 @@
 def win_node = 'Build-d001_EJ-019-64W10-12' //Node on which build should execute
-def linux_node = 'spf01_build-d001-cent7-x64-v' //Node on which build should execute
+def linux_node = 'spf02_build-d002-cent7-x64-v' //Node on which build should execute
 def source_files = "src"  // directory in which python source files exist
 def test_files = "test"  // directory in which python source files exist
 def req_txt = "config/python/requirements.txt" // requirements.txt location
@@ -48,7 +48,7 @@ pipeline {
         }
         stage('Pipeline Execution') {
             parallel{
-                /*stage ('Linux'){
+                stage ('Linux'){
                     agent { label "${linux_node}" }
                     when { environment name: 'OS', value: '' }  //Check is the running node is non-windows
                     stages {
@@ -94,7 +94,7 @@ pipeline {
                         }
                     }
                     
-                }*/
+                }
                 stage ('Windows'){
                     agent { label "${win_node}" }
                   	environment {
