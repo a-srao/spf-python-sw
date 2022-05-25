@@ -48,7 +48,7 @@ pipeline {
         }
         stage('Pipeline Execution') {
             parallel{
-                stage ('Linux'){
+                /*stage ('Linux'){
                     agent { label "${linux_node}" }
                     when { environment name: 'OS', value: '' }  //Check is the running node is non-windows
                     stages {
@@ -94,7 +94,7 @@ pipeline {
                         }
                     }
                     
-                }
+                }*/
                 stage ('Windows'){
                     agent { label "${win_node}" }
                   	environment {
@@ -178,6 +178,11 @@ pipeline {
                                                     {
                                                     "pattern": "build_3.txt", 
                                                     "target": "gen-des-spf-local/artifacts/",
+                                                    "recursive": "false"
+                                                },
+												{
+                                                    "pattern": "report.zip", 
+                                                    "target": "gen-des-spf-local/test/",
                                                     "recursive": "false"
                                                 }
 												
