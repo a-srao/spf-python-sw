@@ -183,7 +183,7 @@ pipeline {
 												
 												{
                                                     "pattern": "report.zip", 
-                                                    "target": "gen-des-spf-local/test/",
+                                                    "target": "gen-des-spf-local/artifacts/test/",
                                                     "recursive": "true"
                                                 }
 												
