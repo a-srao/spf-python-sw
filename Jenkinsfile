@@ -3,7 +3,7 @@ def linux_node = 'spf02_build-d002-cent7-x64-v' //Node on which build should exe
 def source_files = "src"  // directory in which python source files exist
 def test_files = "test"  // directory in which python source files exist
 def req_txt = "config/python/requirements.txt" // requirements.txt location
-
+def reports_dir="reports"  // folder where test, sca reports will be generated.
 // Jenkins specific configurations
 def sonar_scanner_toolname_windows = 'sonar-scanner-cli-4.6.0.2311-windows' // Scanner toolname as configured in Jenkins for windows
 def sonar_scanner_toolname_linux = 'sonar-scanner-cli-4.6.0.2311-linux' // Scanner toolname as configured in Jenkins for linux
@@ -14,11 +14,11 @@ def sonar_projectKey =  "spf-python-sw"
 def sonar_projectName = "spf-python-sw"
 def sonar_projectBaseDir= "." 
 def sonar_sources="." 
-def sonar_exclusions="**/coverage_html/**"
-def sonar_coverage_exclusions="**/test/**"
-def sonar_python_reportPath="pytest.xml"
-def sonar_python_coverage_reportPath="coverage.xml"
-def sonar_python_pylint_report = "pylint.xml"
+def sonar_exclusions="**/$reports_dir/**"
+def sonar_coverage_exclusions="**/$test_files/**"
+def sonar_python_reportPath="$reports_dir/pytest.xml"
+def sonar_python_coverage_reportPath="$reports_dir/coverage.xml"
+def sonar_python_pylint_report = "$reports_dir/pylint.xml"
 sonar_parameters=" -X -Dsonar.projectKey=$sonar_projectKey -Dsonar.projectName=$sonar_projectName -Dsonar.projectBaseDir=$sonar_projectBaseDir -Dsonar.sources=$source_files -Dsonar.exclusions=$sonar_exclusions  -Dsonar.coverage.exclusions=$sonar_coverage_exclusions -Dsonar.python.xunit.reportPath=$sonar_python_reportPath -Dsonar.python.coverage.reportPaths=$sonar_python_coverage_reportPath -Dsonar.python.pylint.reportPath=$sonar_python_pylint_report "
 						
 pipeline {
@@ -50,7 +50,7 @@ pipeline {
             parallel{
                 stage ('Linux'){
                     agent { label "${linux_node}" }
-                    when { environment name: 'OS', value: '' }  //Check is the running node is non-windows
+                    when { environment name: 'OS', value: '' }  //Check if the running node is non-windows
                     stages {
                         stage('Build project') {
                             steps {
@@ -59,22 +59,17 @@ pipeline {
                         }         
                         stage('Test and Coverage'){
                             steps {
-                                sh 'scripts/linux/unittest.sh'  // Placeholder. May not be required for python
+                                sh 'scripts/linux/unittest.sh'  
                             }
                         }
-                        stage('Generate Technical Doc'){    // Not required for CI Pipeline.
+                        stage('Regression Tests'){         // This may be removed from CI
                             steps {
-                                sh './scripts/linux/runSphinx.sh'
+                                sh 'scripts/linux/regressiontest.sh'
                             }
                         }
                         stage('SCA - PyLint'){
                             steps {
-                                script {
-                                    echo 'Execute pylint on Linux enviornment'
-                                    sh """
-                                    ./scripts/linux/runPylint.sh  $source_files $sonar_python_pylint_report
-                                    """
-                                }
+                                sh "scripts/linux/runPylint.sh  $source_files $sonar_python_pylint_report"
                             }
                         }
                         stage("SCA - SonarQube"){
@@ -82,18 +77,25 @@ pipeline {
                                 sonarscanner = tool name: "${sonar_scanner_toolname_linux}"
                             }
                             steps {
-                                script {
-                                    withSonarQubeEnv ("${sonar_server_instance}") {
-                                        echo "analyse sonarqube"
-                                        sh """
-                                        $sonarscanner/bin/sonar-scanner  $sonar_parameters
-                                        """
+                                withSonarQubeEnv ("${sonar_server_instance}") {
+                                    echo "analyse sonarqube"
+                                    sh "$sonarscanner/bin/sonar-scanner  $sonar_parameters"
+                                }
+                            }
+                        }
+                        stage('SonarQube Quality Gate') {
+                            steps {
+                                timeout(time: 1, unit: 'HOURS') { // Just in case something goes wrong, pipeline will be killed after a timeout
+                                    script {
+                                        def qg = waitForQualityGate abortPipeline: true// Reuse taskId previously collected by withSonarQubeEnv
+                                        if (qg.status != 'OK') {
+                                            error "Pipeline aborted due to quality gate failure: ${qg.status}"
+                                        }
                                     }
                                 }
                             }
                         }
                     }
-                    
                 }
                 stage ('Windows'){
                     agent { label "${win_node}" }
@@ -104,44 +106,32 @@ pipeline {
                     stages {
                         stage('Build project') {
                             steps {
-                                bat "type NUL > build_3.txt "
-								
-								
+                                bat "type NUL > build-0.3.txt "	
                             }
                         }
 						stage('Profile'){
 							steps{
-									bat """
-									python -m cProfile -o profile.pstats src/hello_world.py
-									gprof2dot -f pstats profile.pstats | ${graphviz}\\bin\\dot -Tpng -o out1.png
-								    """
-				                }
+                                bat """
+                                python -m cProfile -o profile.pstats src/hello_world.py
+                                gprof2dot -f pstats profile.pstats | ${graphviz}\\bin\\dot -Tpng -o out1.png
+                                """
+				            }
 		                }
                         stage('Test and Coverage'){
                             steps {
-									bat """
-					
-									.\\scripts\\windows\\unittest.bat
-                    
-									"""
+                                bat "scripts\\windows\\unittest.bat"
 							}
                         }
-                        stage('Generate Technical Doc'){    // Not required for CI Pipeline.
+                        stage('Regression Tests'){         // This may be removed from CI
                             steps {
-                                bat ".\\scripts\\windows\\runSphinx.bat"
+                                bat "scripts\\windows\\regressiontest.bat"
                             }
                         }
                         stage('Static Code Analysis - PyLint'){
                             steps {
-                                script {
-                                    echo 'Execute pylint on Windows enviornment'
-                                    bat """
-                                    .\\scripts\\windows\\runPylint.bat $source_files $sonar_python_pylint_report
-                                    """
-                                }
+                                bat "scripts\\windows\\runPylint.bat $source_files $sonar_python_pylint_report"
                             }
                         }
-						
 						stage('Archive Test Report'){
                             steps{
                                 script{
@@ -158,25 +148,21 @@ pipeline {
                                 sonarscanner = tool name: "${sonar_scanner_toolname_windows}"
                             }
                             steps {
-                                script {
-                                    withSonarQubeEnv ("${sonar_server_instance}") {
-                                        echo "analyse sonarqube"
-                                        bat """
-                                        $sonarscanner\\bin\\sonar-scanner.bat  $sonar_parameters
-                                        """
-                                    }
+                                withSonarQubeEnv ("${sonar_server_instance}") {
+                                    echo "analyse sonarqube"
+                                    bat "$sonarscanner\\bin\\sonar-scanner.bat  $sonar_parameters"
                                 }
                             }
                         }
                     
-                    stage('Upload Artifacts') {
+                        stage('Upload Artifacts') {
                             steps {
                                 script{
                                     server = Artifactory.server 'Artifactory'  // name configured in Manage Jenkins-> Configuration
                                         def copy = """{
                                             "files": [
                                                     {
-                                                    "pattern": "build_3.txt", 
+                                                    "pattern": "build-0.3.txt", 
                                                     "target": "gen-des-spf-local/artifacts/",
                                                     "recursive": "false"
                                                 },
@@ -191,41 +177,25 @@ pipeline {
                                 }
                             }
                         }
-						
-					
                     }    
                 }
                 
             }
         }
-        // Uncomment this code for production
-        // stage('SonarQube Quality Gate') {
-        //     steps {
-        //         timeout(time: 1, unit: 'HOURS') { // Just in case something goes wrong, pipeline will be killed after a timeout
-        //             script {
-        //                 def qg = waitForQualityGate abortPipeline: true// Reuse taskId previously collected by withSonarQubeEnv
-        //                 if (qg.status != 'OK') {
-        //                     error "Pipeline aborted due to quality gate failure: ${qg.status}"
-        //                 }
-        //             }
-        //         }
-        //     }
-        // }
-        
-        
         stage('Release') {
             when { branch 'master' }
+            agent { label "${win_node}" } 
             stages {
-                stage('Git Tagging') {
+                stage ('Generate Technical Doc'){
                     steps {
-                        echo "git tag"
+                        bat "scripts\\windows\\runSphinx.bat" //for windows nodes
+                        // sh "scripts/linux/runSphinx.bat" // for linux nodes 
+                        
                     }
                 }
                 stage('Promotion') {
                     steps {
-                        script {
-                            echo 'Promote to BETA state'
-                        }
+                        echo 'Promote to BETA state'
                     }
                 }
             }
