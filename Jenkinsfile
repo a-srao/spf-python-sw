@@ -133,14 +133,13 @@ pipeline {
                             }
                         }
 						stage('Archive Test Report'){
-                            steps{
-                                script{
+                            steps {
                                     bat """
                                      mkdir Testarchive
                                      xcopy .\\reports\\pytest.html .\\Testarchive
                                      """
                                      zip zipFile: 'report.zip', archive: false , dir: 'Testarchive'
-                                }
+                                
                             }
                         }	
                         stage("SCA - SonarQube"){
