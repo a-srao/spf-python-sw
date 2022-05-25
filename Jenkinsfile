@@ -178,13 +178,13 @@ pipeline {
                                                     {
                                                     "pattern": "build_3.txt", 
                                                     "target": "gen-des-spf-local/artifacts/",
-                                                    "recursive": "false"
+                                                    "recursive": "true"
                                                 },
 												
 												{
                                                     "pattern": "report.zip", 
                                                     "target": "gen-des-spf-local/test/",
-                                                    "recursive": "false"
+                                                    "recursive": "true"
                                                 }
 												
                                             ]}""" 
