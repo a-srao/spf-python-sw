@@ -141,6 +141,28 @@ pipeline {
                                 }
                             }
                         }
+						
+						stage('Archive Test Report to Artifactory'){
+                            steps{
+                                script{
+                                    bat """
+                                     mkdir Testarchive
+                                     xcopy report.html .\\Testarchive
+                                     """
+                                     zip zipFile: 'report.zip', archive: false , dir: 'Testarchive'
+                                    server = Artifactory.server 'Artifactory'
+                                    def copy = """{
+                                    "files": [
+                                        {
+                                        "pattern": "report.zip", 
+                                        "target": "gen-des-spf-local/test/",
+                                        "recursive": "false"
+                                        }
+                                     ]}""" 
+                                server.upload(copy)
+                                }
+                            }
+                        }	
                         stage("SCA - SonarQube"){
                             environment {
                                 sonarscanner = tool name: "${sonar_scanner_toolname_windows}"
@@ -174,27 +196,7 @@ pipeline {
                             }
                         }
 						
-					stage('Archive Test Report to Artifactory'){
-                            steps{
-                                script{
-                                    bat """
-                                     mkdir Testarchive
-                                     xcopy report.html .\\Testarchive
-                                     """
-                                     zip zipFile: 'report.zip', archive: false , dir: 'Testarchive'
-                                    server = Artifactory.server 'Artifactory'
-                                    def copy = """{
-                                    "files": [
-                                        {
-                                        "pattern": "report.zip", 
-                                        "target": "gen-des-spf-local/test/",
-                                        "recursive": "false"
-                                        }
-                                     ]}""" 
-                                server.upload(copy)
-                                }
-                            }
-                        }	
+					
                     }    
                 }
                 
