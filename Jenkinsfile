@@ -147,7 +147,7 @@ pipeline {
                                 script{
                                     bat """
                                      mkdir Testarchive
-                                     xcopy report.html .\\Testarchive
+                                     xcopy .\\reports\\pytest.html .\\Testarchive
                                      """
                                      zip zipFile: 'report.zip', archive: false , dir: 'Testarchive'
                                 }
