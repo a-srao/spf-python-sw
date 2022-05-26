@@ -1,5 +1,5 @@
 def win_node = 'Build-d001_EJ-019-64W10-12' //Node on which build should execute
-def linux_node = 'spf01_build-d001-cent7-x64-v' //Node on which build should execute
+def linux_node = 'spf02_build-d002-cent7-x64-v' //Node on which build should execute
 def source_files = "src"  // directory in which python source files exist
 def test_files = "test"  // directory in which python source files exist
 def req_txt = "config/python/requirements.txt" // requirements.txt location
@@ -106,7 +106,7 @@ pipeline {
                     stages {
                         stage('Build project') {
                             steps {
-                                bat "type NUL > build_3.txt "	
+                                bat "type NUL > build-0.3.txt "	
                             }
                         }
 						stage('Profile'){
@@ -127,11 +127,17 @@ pipeline {
                                 bat "scripts\\windows\\regressiontest.bat"
                             }
                         }
-                        stage('Static Code Analysis - PyLint'){
+                        stage('Static Code Analysis - PyLint'){   // this is used along with sonar properties for static analysis
                             steps {
                                 bat "scripts\\windows\\runPylint.bat $source_files $sonar_python_pylint_report"
                             }
                         }
+						stage('Archive Test Report'){
+                            steps {
+                                     zip zipFile: 'report.zip', archive: false , dir: 'reports'
+                                
+                            }
+                        }	
                         stage("SCA - SonarQube"){
                             environment {
                                 sonarscanner = tool name: "${sonar_scanner_toolname_windows}"
@@ -145,22 +151,28 @@ pipeline {
                         }
                     
                         stage('Upload Artifacts') {
-                                steps {
-                                    script{
-                                        server = Artifactory.server 'Artifactory'  // name configured in Manage Jenkins-> Configuration
-                                            def copy = """{
-                                                "files": [
-                                                        {
-                                                        "pattern": "build_3.txt", 
-                                                        "target": "gen-des-spf-local/artifacts/",
-                                                        "recursive": "false"
-                                                    }
-                                                ]}""" 
-                                    server.upload(copy)
-                                    }
+                            steps {
+                                script{
+                                    server = Artifactory.server 'Artifactory'  // name configured in Manage Jenkins-> Configuration
+                                        def copy = """{
+                                            "files": [
+                                                    {
+                                                    "pattern": "build-0.3.txt", 
+                                                    "target": "gen-des-spf-local/artifacts/",
+                                                    "recursive": "false"
+                                                },
+												{
+                                                    "pattern": "report.zip", 
+                                                    "target": "gen-des-spf-local/test/",
+                                                    "recursive": "false"
+                                                }
+												
+                                            ]}""" 
+                                server.upload(copy)
                                 }
                             }
-                        }    
+                        }
+                    }    
                 }
                 
             }
