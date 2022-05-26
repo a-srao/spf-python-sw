@@ -127,18 +127,14 @@ pipeline {
                                 bat "scripts\\windows\\regressiontest.bat"
                             }
                         }
-                        stage('Static Code Analysis - PyLint'){
+                        stage('Static Code Analysis - PyLint'){   // this is used along with sonar properties for static analysis
                             steps {
                                 bat "scripts\\windows\\runPylint.bat $source_files $sonar_python_pylint_report"
                             }
                         }
 						stage('Archive Test Report'){
                             steps {
-                                    bat """
-                                     mkdir Testarchive
-                                     xcopy .\\reports\\pytest.html .\\Testarchive
-                                     """
-                                     zip zipFile: 'report.zip', archive: false , dir: 'Testarchive'
+                                     zip zipFile: 'report.zip', archive: false , dir: 'reports'
                                 
                             }
                         }	
