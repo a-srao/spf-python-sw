@@ -8,7 +8,6 @@ def reports_dir="reports"  // folder where test, sca reports will be generated.
 def sonar_scanner_toolname_windows = 'sonar-scanner-cli-4.6.0.2311-windows' // Scanner toolname as configured in Jenkins for windows
 def sonar_scanner_toolname_linux = 'sonar-scanner-cli-4.6.0.2311-linux' // Scanner toolname as configured in Jenkins for linux
 def sonar_server_instance = 'sonar-ee' //instance name configured on Jenkins
-def email_list='kishore.j-ee@infineon.com'
 
 //Sonar properties
 def sonar_projectKey =  "spf-python-sw"
@@ -201,16 +200,14 @@ pipeline {
 
     post {
             failure{
-                emailext attachLog: true, body: 'Check console output- $BUILD_URL \n \n Branch - $BRANCH_NAME \n\n ${CHANGES}', 
-                to: "${email_list}", 
+                emailext attachLog: true, body: 'Please check console output at $BUILD_URL \n \n Branch - $BRANCH_NAME \n\n Git Changes in this build : \n ${CHANGES} \n\n',
                 recipientProviders: [developers(), brokenBuildSuspects()],
-                subject: 'Build Failed in Jenkins: $PROJECT_NAME - #$BUILD_NUMBER'
+                subject: 'Build Failed for project "$PROJECT_NAME" and branch "$BRANCH_NAME"'
                 }
             fixed{  // this will execute only if current build is success and previous build failed
-                emailext body: 'Check console output at $BUILD_URL  \n \n Branch - $BRANCH_NAME \n\n ${CHANGES} \n\n', 
-                to: "${email_list}", 
+                emailext body: 'Please check console output at $BUILD_URL  \n \n Branch - $BRANCH_NAME \n\n Git Changes in this build : \n ${CHANGES} \n\n', 
                 recipientProviders: [developers(), brokenBuildSuspects()],
-                subject: 'Jenkins build is back to normal: $PROJECT_NAME - #$BUILD_NUMBER'
+                subject: 'Build Failed for project "$PROJECT_NAME" and branch "$BRANCH_NAME"'
                 }
 
         }
