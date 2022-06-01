@@ -206,7 +206,7 @@ pipeline {
             fixed{  // this will execute only if current build is success and previous build failed
                 emailext body: 'Please check console output at $BUILD_URL  \n \n Branch - $BRANCH_NAME \n\n Git Changes in this build : \n ${CHANGES} \n\n', 
                 recipientProviders: [developers(), brokenBuildSuspects()],
-                subject: 'Build Failed for project "$PROJECT_NAME" and branch "$BRANCH_NAME"'
+                subject: 'Build is back to normal state "$PROJECT_NAME" and branch "$BRANCH_NAME"'
                 }
 
         }
