@@ -8,6 +8,7 @@ def reports_dir="reports"  // folder where test, sca reports will be generated.
 def sonar_scanner_toolname_windows = 'sonar-scanner-cli-4.6.0.2311-windows' // Scanner toolname as configured in Jenkins for windows
 def sonar_scanner_toolname_linux = 'sonar-scanner-cli-4.6.0.2311-linux' // Scanner toolname as configured in Jenkins for linux
 def sonar_server_instance = 'sonar-ee' //instance name configured on Jenkins
+def email_list='kishore.j-ee@infineon.com'
 
 //Sonar properties
 def sonar_projectKey =  "spf-python-sw"
