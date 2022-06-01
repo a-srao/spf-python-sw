@@ -55,7 +55,6 @@ pipeline {
                         stage('Build project') {
                             steps {
                                 echo 'Generating Built artifact'  // Placeholder. May not be required for python
-                                sh 'exit 1'
                             }
                         }         
                         stage('Test and Coverage'){
