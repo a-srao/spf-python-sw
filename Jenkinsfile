@@ -202,11 +202,13 @@ pipeline {
             failure{
                 emailext attachLog: true, body: 'Check console output- $BUILD_URL \n \n Branch - $BRANCH_NAME \n\n ${CHANGES}', 
                 to: "${email_list}", 
+                recipientProviders: [developers(), brokenBuildSuspects()],
                 subject: 'Build Failed in Jenkins: $PROJECT_NAME - #$BUILD_NUMBER'
                 }
             fixed{  // this will execute only if current build is success and previous build failed
                 emailext body: 'Check console output at $BUILD_URL  \n \n Branch - $BRANCH_NAME \n\n ${CHANGES} \n\n', 
                 to: "${email_list}", 
+                recipientProviders: [developers(), brokenBuildSuspects()],
                 subject: 'Jenkins build is back to normal: $PROJECT_NAME - #$BUILD_NUMBER'
                 }
 
