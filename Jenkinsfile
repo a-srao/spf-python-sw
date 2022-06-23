@@ -199,7 +199,7 @@ pipeline {
 
     post {
         success{
-                emailext body: '${SCRIPT, template="groovy-html.template"}',
+                emailext body: '${SCRIPT, template="groovy-html.template"}', //adding inbuilt groovy html template
                 recipientProviders: [developers(), brokenBuildSuspects()],
                 subject: 'Build was successful for project "$PROJECT_NAME" and branch "$BRANCH_NAME"',mimeType: 'text/html'
             }
