@@ -190,7 +190,7 @@ pipeline {
                 }
                 stage('Promotion') {
                     steps {
-                        echo 'Promote to BETA state'
+                        echo 'Promote to BETA state '
                     }
                 }
             }
