@@ -4,7 +4,6 @@ def source_files = "src"  // directory in which python source files exist
 def test_files = "test"  // directory in which python source files exist
 def req_txt = "config/python/requirements.txt" // requirements.txt location
 def reports_dir="reports"  // folder where test, sca reports will be generated.
-def sonar_qualityProfile="DES-SPF"
 // Jenkins specific configurations
 def sonar_scanner_toolname_windows = 'sonar-scanner-cli-4.6.0.2311-windows' // Scanner toolname as configured in Jenkins for windows
 def sonar_scanner_toolname_linux = 'sonar-scanner-cli-4.6.0.2311-linux' // Scanner toolname as configured in Jenkins for linux
@@ -20,6 +19,7 @@ def sonar_coverage_exclusions="**/$test_files/**"
 def sonar_python_reportPath="$reports_dir/pytest.xml"
 def sonar_python_coverage_reportPath="$reports_dir/coverage.xml"
 def sonar_python_pylint_report = "$reports_dir/pylint.xml"
+def sonar_qualityProfile="DES-SPF"
 sonar_parameters=" -X -Dsonar.projectKey=$sonar_projectKey -Dsonar.projectName=$sonar_projectName -Dsonar.projectBaseDir=$sonar_projectBaseDir -Dsonar.sources=$source_files -Dsonar.exclusions=$sonar_exclusions  -Dsonar.coverage.exclusions=$sonar_coverage_exclusions -Dsonar.python.xunit.reportPath=$sonar_python_reportPath -Dsonar.python.coverage.reportPaths=$sonar_python_coverage_reportPath -Dsonar.python.pylint.reportPath=$sonar_python_pylint_report "
 						
 pipeline {
@@ -58,7 +58,7 @@ pipeline {
                     stages {
                         stage ("Configure Sonarqube") {  //setting webhook and Spf quality profile
                             steps {
-                                withSonarQubeEnv(sonar_server_instance) {
+                                withSonarQubeEnv(sonar_server_instance) { //creating SQ project, setting SQ to use SPF quality profile & Webhook for fetching quality gate result without manual intervention
                                     sh """
                                     curl -u "${SONAR_AUTH_TOKEN}:" -X POST "${SONAR_HOST_URL}/api/projects/create?name=${sonar_projectName}&project=${sonar_projectKey}"
                                     curl -u "${creds_USR}:${creds_PSW}" -X POST "${SONAR_HOST_URL}/api/webhooks/create?name=jenkins&project=${sonar_projectKey}&url=${env.JENKINS_URL}sonarqube-webhook/"
@@ -121,7 +121,7 @@ pipeline {
                     stages {
                         stage ("Configure Sonarqube") {  //setting webhook and Spf quality profile
                             steps {
-                                    withSonarQubeEnv(sonar_server_instance) {
+                                    withSonarQubeEnv(sonar_server_instance) { //creating SQ project, setting SQ to use SPF quality profile & Webhook for fetching quality gate result without manual intervention
                                         bat """
                                         curl -u "${SONAR_AUTH_TOKEN}:" -X POST "${SONAR_HOST_URL}/api/projects/create?name=${sonar_projectName}&project=${sonar_projectKey}"
                                         curl -u "${creds_USR}:${creds_PSW}" -X POST "${SONAR_HOST_URL}/api/webhooks/create?name=jenkins&project=${sonar_projectKey}&url=${env.JENKINS_URL}sonarqube-webhook/"
