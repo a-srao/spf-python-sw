@@ -19,10 +19,14 @@ def sonar_coverage_exclusions="**/$test_files/**"
 def sonar_python_reportPath="$reports_dir/pytest.xml"
 def sonar_python_coverage_reportPath="$reports_dir/coverage.xml"
 def sonar_python_pylint_report = "$reports_dir/pylint.xml"
+def sonar_qualityProfile="DES-SPF"
 sonar_parameters=" -X -Dsonar.projectKey=$sonar_projectKey -Dsonar.projectName=$sonar_projectName -Dsonar.projectBaseDir=$sonar_projectBaseDir -Dsonar.sources=$source_files -Dsonar.exclusions=$sonar_exclusions  -Dsonar.coverage.exclusions=$sonar_coverage_exclusions -Dsonar.python.xunit.reportPath=$sonar_python_reportPath -Dsonar.python.coverage.reportPaths=$sonar_python_coverage_reportPath -Dsonar.python.pylint.reportPath=$sonar_python_pylint_report "
 						
 pipeline {
-    agent any
+   agent any
+    environment {
+        creds = credentials('be84636a-32a1-447d-a707-450872167daa') //Credentials of type "username with password" for service account which has Admin permissions on the sonarqube project.
+    }
     stages {
         stage('Init') {
             parallel {
@@ -52,6 +56,17 @@ pipeline {
                     agent { label "${linux_node}" }
                     when { environment name: 'OS', value: '' }  //Check if the running node is non-windows
                     stages {
+                        stage ("Configure Sonarqube") {  //setting webhook and Spf quality profile
+                            steps {
+                                withSonarQubeEnv(sonar_server_instance) { //creating SQ project, setting SQ to use SPF quality profile & Webhook for fetching quality gate result without manual intervention
+                                    sh """
+                                    curl -u "${SONAR_AUTH_TOKEN}:" -X POST "${SONAR_HOST_URL}/api/projects/create?name=${sonar_projectName}&project=${sonar_projectKey}"
+                                    curl -u "${creds_USR}:${creds_PSW}" -X POST "${SONAR_HOST_URL}/api/webhooks/create?name=jenkins&project=${sonar_projectKey}&url=${env.JENKINS_URL}sonarqube-webhook/"
+                                    curl -u "${creds_USR}:${creds_PSW}" -X POST -d language=py -d project=${sonar_projectKey} -d qualityProfile=${sonar_qualityProfile} "${SONAR_HOST_URL}/api/qualityprofiles/add_project"
+                                    """
+                                }
+                            }
+                        }
                         stage('Build project') {
                             steps {
                                 echo 'Generating Built artifact'  // Placeholder. May not be required for python
@@ -104,6 +119,17 @@ pipeline {
                     }
                     when { environment name: 'OS', value: 'Windows_NT' } //Check is the running node is windows
                     stages {
+                        stage ("Configure Sonarqube") {  //setting webhook and Spf quality profile
+                            steps {
+                                    withSonarQubeEnv(sonar_server_instance) { //creating SQ project, setting SQ to use SPF quality profile & Webhook for fetching quality gate result without manual intervention
+                                        bat """
+                                        curl -u "${SONAR_AUTH_TOKEN}:" -X POST "${SONAR_HOST_URL}/api/projects/create?name=${sonar_projectName}&project=${sonar_projectKey}"
+                                        curl -u "${creds_USR}:${creds_PSW}" -X POST "${SONAR_HOST_URL}/api/webhooks/create?name=jenkins&project=${sonar_projectKey}&url=${env.JENKINS_URL}sonarqube-webhook/"
+                                        curl -u "${creds_USR}:${creds_PSW}" -X POST -d language=py -d project=${sonar_projectKey} -d qualityProfile=${sonar_qualityProfile} "${SONAR_HOST_URL}/api/qualityprofiles/add_project"
+                                    """
+                                }
+                            }
+                        }
                         stage('Build project') {
                             steps {
                                 bat "type NUL > build-0.3.txt "	
