@@ -1,7 +1,7 @@
 --index-url https://artifactory.intra.infineon.com/artifactory/api/pypi/pypi-pypi-org/simple
 ## Put the required package here
 gprof2dot 			# Required for Profiling
-graphviz  			# This package facilitates the creation and rendering of graph descriptions
+graphviz  			# Required for creation and rendering of graph descriptions of profiling
 coverage>=5.3 		# Required for code coverage of Python
 pytest>=6.1.1 		# Required for Test Framework
 pylint 				# Required for Static Code Analysis / Technical Debt
