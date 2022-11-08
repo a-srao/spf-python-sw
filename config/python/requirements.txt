@@ -2,11 +2,11 @@
 ## Put the required package here
 gprof2dot 			# Required for Profiling
 graphviz  			# This package facilitates the creation and rendering of graph descriptions
-coverage>=5.3 		# This package is for measuring code coverage of Python programs
-pytest>=6.1.1 		# This package is for Test Framework
+coverage>=5.3 		# Required for code coverage of Python
+pytest>=6.1.1 		# Required for Test Framework
 pylint 				# Required for Static Code Analysis / Technical Debt
 sphinx 				# Required for Technical Documentation
 sphinx-rtd-theme 	# Required for Technical Documentation Theme
-pytest-regressions 	# This package is for Regression test
+pytest-regressions 	# Required for Regression test
 pytest-regtest 		# regression test tool
-pytest-html 		# pytest package that generates a HTML report for test results
+pytest-html 		# Required for test results to generate HTML report
