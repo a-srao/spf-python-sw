@@ -8,5 +8,5 @@ pylint 				# Required for Static Code Analysis / Technical Debt
 sphinx 				# Required for Technical Documentation
 sphinx-rtd-theme 	# Required for Technical Documentation Theme
 pytest-regressions 	# Required for Regression test
-pytest-regtest 		# regression test tool
+pytest-regtest 		# Required for Regression test
 pytest-html 		# Required for test results to generate HTML report
