@@ -1,12 +1,12 @@
 --index-url https://artifactory.intra.infineon.com/artifactory/api/pypi/pypi-pypi-org/simple
 ## Put the required package here
-gprof2dot 			# for performance visualization
+gprof2dot 			# Required for Profiling
 graphviz  			# This package facilitates the creation and rendering of graph descriptions
 coverage>=5.3 		# for test coverage
 pytest>=6.1.1 		# Unit test
-pylint 				# static code analysis tool
-sphinx 				# Required forTechnical Doc
-sphinx-rtd-theme 	# technical documentation tool
+pylint 				# Required for Static Code Analysis / Technical Debt
+sphinx 				# Required for Technical Documentation
+sphinx-rtd-theme 	# Required for Technical Documentation Theme
 pytest-regressions 	# Regression test tool
 pytest-regtest 		# regression test tool
 pytest-html 		# HTML test output
