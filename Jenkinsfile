@@ -10,8 +10,8 @@ def sonar_scanner_toolname_linux = 'sonar-scanner-cli-4.6.0.2311-linux' // Scann
 def sonar_server_instance = 'sonar-prod' //instance name configured on Jenkins
 
 //Sonar properties
-def sonar_projectKey =  "spf-python-sw"
-def sonar_projectName = "spf-python-sw"
+def sonar_projectKey =  "des-spf-python"
+def sonar_projectName = "des-spf-python"
 def sonar_projectBaseDir= "." 
 def sonar_sources="." 
 def sonar_exclusions="**/$reports_dir/**"
