@@ -7,11 +7,11 @@ def reports_dir="reports"  // folder where test, sca reports will be generated.
 // Jenkins specific configurations
 def sonar_scanner_toolname_windows = 'sonar-scanner-cli-4.6.0.2311-windows' // Scanner toolname as configured in Jenkins for windows
 def sonar_scanner_toolname_linux = 'sonar-scanner-cli-4.6.0.2311-linux' // Scanner toolname as configured in Jenkins for linux
-def sonar_server_instance = 'sonar-ee' //instance name configured on Jenkins
+def sonar_server_instance = 'sonar-prod' //instance name configured on Jenkins
 
 //Sonar properties
-def sonar_projectKey =  "spf-python-sw"
-def sonar_projectName = "spf-python-sw"
+def sonar_projectKey =  "des-spf-python"
+def sonar_projectName = "des-spf-python"
 def sonar_projectBaseDir= "." 
 def sonar_sources="." 
 def sonar_exclusions="**/$reports_dir/**"

@@ -3,7 +3,7 @@
 [![Quality Gate](https://sonar-ee.intra.infineon.com/api/project_badges/measure?project=spf-python-sw&branch=master&metric=alert_status)](https://sonar-ee.intra.infineon.com/component_measures/metric/alert_status/list?id=spf-python-sw&branch=master)
 []
 
-# Introduction
+#Introduction.
 This template contains the sample Python project to demonstrate the SPF Capabilities for Python.
 It performs the following steps:
 * Run the Unit tests 
