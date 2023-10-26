@@ -140,7 +140,7 @@ pipeline {
                 stage ('Generate Technical Doc'){
                     steps {
                         //bat "scripts\\windows\\runSphinx.bat" //for windows nodes
-                         sh "scripts/linux/runSphinx.bat" // for linux nodes 
+                         sh "scripts/linux/runSphinx.sh" // for linux nodes 
                         
                     }
                 }
