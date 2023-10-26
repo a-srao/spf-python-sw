@@ -1,12 +1,10 @@
 def win_node = 'Build-d001_EJ-019-64W10-12' //Node on which build should execute
-def linux_node = 'spf02_build-d002-cent7-x64-v' //Node on which build should execute
 def source_files = "src"  // directory in which python source files exist
 def test_files = "test"  // directory in which python source files exist
 def req_txt = "config/python/requirements.txt" // requirements.txt location
 def reports_dir="reports"  // folder where test, sca reports will be generated.
 // Jenkins specific configurations
 def sonar_scanner_toolname_windows = 'sonar-scanner-cli-4.6.0.2311-windows' // Scanner toolname as configured in Jenkins for windows
-def sonar_scanner_toolname_linux = 'sonar-scanner-cli-4.6.0.2311-linux' // Scanner toolname as configured in Jenkins for linux
 def sonar_server_instance = 'sonar-prod' //instance name configured on Jenkins
 
 //Sonar properties
@@ -119,7 +117,7 @@ pipeline {
                                 },
 								{
                                 "pattern": "report.zip", 
-                                "target": "gen-des-spf-local/test/",
+                                "target": "gen-des-spf-local/windows/test/",
                                 "recursive": "false"
                                 }
 												
