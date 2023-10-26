@@ -61,11 +61,6 @@ pipeline {
         }
         stage('Build project') {
             steps {
-                sh 'touch build-0.3.txt'	
-            }
-        }
-        stage('Build project') {
-            steps {
                 echo 'Generating Built artifact'  // Placeholder. May not be required for python
             } 
         }         
@@ -118,11 +113,6 @@ pipeline {
                     server = Artifactory.server 'Artifactory'  // name configured in Manage Jenkins-> Configuration
                         def copy = """{
                             "files": [
-                                {
-                                "pattern": "build-0.3.txt", 
-                                "target": "gen-des-spf-local/artifacts/",
-                                "recursive": "false"
-                                },
 								{
                                 "pattern": "report.zip", 
                                 "target": "gen-des-spf-local/linux/test/",
