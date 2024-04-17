@@ -1,4 +1,8 @@
-#!/bin/tcsh
+#!/bin/bash
+
+set echo
+set -euxo pipefail
+. /opt/Modules/init/bash
 
 echo "Setting up the enviornment"
 
