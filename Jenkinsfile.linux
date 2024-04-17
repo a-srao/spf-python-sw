@@ -1,7 +1,5 @@
 // BitBucket specific inputs
-def source_files = "src"  // directory in which python source files exist
-def test_files = "test"  // directory in which python test files exist
-def req_txt = "config/python/requirements.txt"  // requirements.txt location
+env.source_files = "src"  // directory in which python source files exist
 env.repo_name = "spf-python-sw"  // BitBucket repository name
 env.BitBucket_projectName = "DESSPF"  // BitBucket project name
 
