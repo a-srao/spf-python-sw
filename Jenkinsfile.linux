@@ -4,14 +4,14 @@ env.repo_name = "spf-python-sw"  // BitBucket repository name
 env.BitBucket_projectName = "DESSPF"  // BitBucket project name
 
 // Jenkins specific configurations and inputs
-def sonar_scanner_toolname_linux = "sonar-scanner-cli-4.6.0.2311-linux"  // Scanner toolname as configured in Jenkins for linux
-def sonar_server_instance = "sonar-prod"  // instance name configured on Jenkins
-def linux_node = "linux_node"  // Node on which build should execute
-def reports_dir = "reports"  // folder where tests and sca reports will be generated
+env.sonar_scanner_toolname_linux = "sonar-scanner-cli-4.6.0.2311-linux"  // Scanner toolname as configured in Jenkins for linux
+env.sonar_server_instance = "sonar-prod"  // instance name configured on Jenkins
+env.linux_node = "linux_node"  // Node on which build should execute
+env.reports_dir = "reports"  // folder where tests and sca reports will be generated
 
 // SonarQube specific configurations and inputs
-env.sonar_projectKey =  "des-spf-$repo_name"
-env.sonar_projectName = "des-spf-$repo_name"
+env.sonar_projectKey =  "des-spf-python-sw"
+env.sonar_projectName = "des-spf-python-sw"
 env.sonar_qualityProfile = "DES-SPF"
 env.sonar_qualityGate = "des-spf"
 env.sonar_python_pylint_report = "$reports_dir/pylint.xml"
@@ -50,26 +50,8 @@ pipeline {
             steps {
                 withSonarQubeEnv(sonar_server_instance) { //creating SQ project, setting SQ to use SPF quality profile & Webhook for fetching quality gate result without manual intervention
                     echo "creating SQ project, setting SQ to use python-des-memsoft-profile quality profile & Webhook for fetching quality gate result without manual intervention"
-                    withCredentials([string(credentialsId: 'sonar-prod-token', variable: 'SONAR_TOKEN')]) {
-                        sh '''
-                            curl -u "${SONAR_TOKEN}" -X POST "${SONAR_HOST_URL}/api/projects/create?name=${sonar_projectName}&project=${sonar_projectKey}"
-
-                            # Fetch the list of existing webhooks for the project
-                            EXISTING_WEBHOOKS=$(curl -s -u "${SONAR_TOKEN}" "${SONAR_HOST_URL}/api/webhooks/list?project=${sonar_projectName}" | jq -r '.webhooks[] | select(.url == "'"${JENKINS_URL}sonarqube-webhook/"'")')
-
-                            # Check if the desired webhook URL is already in the list of webhooks for the project
-                            if [[ -n "${EXISTING_WEBHOOKS}" ]]; then
-                                echo "Webhook already exists. Using existing webhook..."
-                            else
-                                # Create webhook
-                                curl -u "${SONAR_TOKEN}" -X POST "${SONAR_HOST_URL}/api/webhooks/create?name=jenkins&project=${sonar_projectKey}&url=${JENKINS_URL}sonarqube-webhook/"
-                                echo "Webhook created successfully."
-                            fi
-
-                            curl -u "${SONAR_TOKEN}" -X POST -d language=py -d project=${sonar_projectKey} -d qualityProfile=${sonar_qualityProfile} "${SONAR_HOST_URL}/api/qualityprofiles/add_project"
-                            curl -u "${SONAR_TOKEN}" -X POST -d gateName=${sonar_qualityGate} -d projectKey=${sonar_projectKey} ${SONAR_HOST_URL}/api/qualitygates/select
-                            curl -u "${SONAR_TOKEN}" -X POST -d "almSetting=Bitbucket Server" -d "repository=${BitBucket_projectName}" -d "project=${sonar_projectName}" -d "slug=${repo_name}" -d "monorepo=false" "${SONAR_HOST_URL}/api/alm_settings/set_bitbucket_binding"
-                        '''
+                    withCredentials([string(credentialsId: 'ce22ebd1-37d5-4af8-a2c9-b0090e237d74', variable: 'SONAR_TOKEN')]) {
+                        sh "scripts/linux/runSonarQube.sh ${SONAR_TOKEN} ${SONAR_HOST_URL} ${sonar_projectName} ${sonar_projectKey} ${JENKINS_URL} ${sonar_qualityProfile} ${sonar_qualityGate} ${BitBucket_projectName} ${repo_name}"
                     }
                 }
             }
