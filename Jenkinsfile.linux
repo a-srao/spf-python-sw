@@ -50,7 +50,7 @@ pipeline {
             steps {
                 withSonarQubeEnv(sonar_server_instance) { //creating SQ project, setting SQ to use SPF quality profile & Webhook for fetching quality gate result without manual intervention
                     echo "creating SQ project, setting SQ to use python-des-memsoft-profile quality profile & Webhook for fetching quality gate result without manual intervention"
-                    withCredentials([string(credentialsId: 'sonar-prod-token', variable: 'SONAR_TOKEN')]) {
+                    withCredentials([string(credentialsId: 'sonar-community-prod-token', variable: 'SONAR_TOKEN')]) {
                         sh "scripts/linux/runSonarQube.sh ${SONAR_TOKEN} ${SONAR_HOST_URL} ${sonar_projectName} ${sonar_projectKey} ${JENKINS_URL} ${sonar_qualityProfile} ${sonar_qualityGate} ${BitBucket_projectName} ${repo_name}"
                     }
                 }
