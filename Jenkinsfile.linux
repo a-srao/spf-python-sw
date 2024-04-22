@@ -1,3 +1,5 @@
+linux_node = "linux_node"  // Node on which build should execute
+
 //Jenkins Pipeline
 pipeline {
     agent { label "${linux_node}" }
@@ -10,7 +12,6 @@ pipeline {
         // Jenkins specific configurations and inputs
         sonar_scanner_toolname_linux = "sonar-scanner-cli-4.6.0.2311-linux"  // Scanner toolname as configured in Jenkins for linux
         sonar_server_instance = "sonar-prod"  // instance name configured on Jenkins
-        linux_node = "linux_node"  // Node on which build should execute
         reports_dir = "reports"  // folder where tests and sca reports will be generated
 
         // SonarQube specific configurations and inputs
@@ -20,6 +21,8 @@ pipeline {
         sonar_qualityGate = "des-spf"
         sonar_python_reportPath = "$reports_dir/pytest.xml"
         sonar_python_coverage_reportPath = "$reports_dir/coverage.xml"
+        sonar_python_reportPath_html = "$reports_dir/pytest.html"
+        sonar_python_coverage_reportPath_html = "$reports_dir/coverage.html"
         sonar_python_pylint_report = "$reports_dir/pylint.xml"
 
         // SonarQube properties configurations
