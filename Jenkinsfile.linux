@@ -5,7 +5,7 @@ pipeline {
         // BitBucket specific inputs
         source_files = "src"  // directory in which python source files exist
         repo_name = "spf-python-sw"  // BitBucket repository name
-        env.BitBucket_projectName = "DESSPF"  // BitBucket project name
+        BitBucket_projectName = "DESSPF"  // BitBucket project name
 
         // Jenkins specific configurations and inputs
         sonar_scanner_toolname_linux = "sonar-scanner-cli-4.6.0.2311-linux"  // Scanner toolname as configured in Jenkins for linux
