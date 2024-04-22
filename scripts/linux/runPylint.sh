@@ -2,8 +2,8 @@
 set -efxo pipefail
 . /opt/Modules/init/bash
 
-source_files=${1?"ERROR: please pass 1st input as input source dir, eg src"}
-sonar_python_pylint_report=${2?"ERROR: please pass 2nd input as output source file, eg reports/pylint.xml"}
+source_files=${source_files?"ERROR: Set the enviornment varaible as 1st input source dir, eg src"}
+sonar_python_pylint_report=${sonar_python_pylint_report?"ERROR: Set the enviornment varaible as 2nd input source file, eg reports/pylint.xml"}
 
 echo "input_source is $source_files"
 echo "output_source is $sonar_python_pylint_report"

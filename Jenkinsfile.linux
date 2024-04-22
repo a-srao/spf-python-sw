@@ -1,28 +1,30 @@
-// BitBucket specific inputs
-env.source_files = "src"  // directory in which python source files exist
-env.repo_name = "spf-python-sw"  // BitBucket repository name
-env.BitBucket_projectName = "DESSPF"  // BitBucket project name
-
-// Jenkins specific configurations and inputs
-env.sonar_scanner_toolname_linux = "sonar-scanner-cli-4.6.0.2311-linux"  // Scanner toolname as configured in Jenkins for linux
-env.sonar_server_instance = "sonar-prod"  // instance name configured on Jenkins
-env.linux_node = "linux_node"  // Node on which build should execute
-env.reports_dir = "reports"  // folder where tests and sca reports will be generated
-
-// SonarQube specific configurations and inputs
-env.sonar_projectKey =  "des-spf-python-sw"
-env.sonar_projectName = "des-spf-python-sw"
-env.sonar_qualityProfile = "DES-SPF"
-env.sonar_qualityGate = "des-spf"
-env.sonar_python_pylint_report = "$reports_dir/pylint.xml"
-
-// SonarQube properties configurations
-sonar_parameters = " -X -Dproject.settings=config/sonarqube/sonar.properties -Dsonar.projectKey=$sonar_projectKey -Dsonar.projectName=$sonar_projectName "
-
-
 //Jenkins Pipeline
 pipeline {
     agent { label "${linux_node}" }
+    environment {
+        // BitBucket specific inputs
+        source_files = "src"  // directory in which python source files exist
+        repo_name = "spf-python-sw"  // BitBucket repository name
+        env.BitBucket_projectName = "DESSPF"  // BitBucket project name
+
+        // Jenkins specific configurations and inputs
+        sonar_scanner_toolname_linux = "sonar-scanner-cli-4.6.0.2311-linux"  // Scanner toolname as configured in Jenkins for linux
+        sonar_server_instance = "sonar-prod"  // instance name configured on Jenkins
+        linux_node = "linux_node"  // Node on which build should execute
+        reports_dir = "reports"  // folder where tests and sca reports will be generated
+
+        // SonarQube specific configurations and inputs
+        sonar_projectKey =  "des-spf-python-sw"
+        sonar_projectName = "des-spf-python-sw"
+        sonar_qualityProfile = "DES-SPF"
+        sonar_qualityGate = "des-spf"
+        sonar_python_reportPath = "$reports_dir/pytest.xml"
+        sonar_python_coverage_reportPath = "$reports_dir/coverage.xml"
+        sonar_python_pylint_report = "$reports_dir/pylint.xml"
+
+        // SonarQube properties configurations
+        sonar_parameters = " -X -Dproject.settings=config/sonarqube/sonar.properties -Dsonar.python.reportPath=$sonar_python_reportPath  -Dsonar.python.coverage.reportPath=$sonar_python_coverage_reportPath -Dsonar.python.pylint.report=$sonar_python_pylint_report -Dsonar.projectKey=$sonar_projectKey -Dsonar.projectName=$sonar_projectName "
+    }
     stages {
         stage('Init') {
             parallel {
@@ -46,34 +48,23 @@ pipeline {
                 }
             }
         }
-        stage ("Configure Sonarqube") {  //setting webhook and Spf quality profile
-            steps {
-                withSonarQubeEnv(sonar_server_instance) { //creating SQ project, setting SQ to use SPF quality profile & Webhook for fetching quality gate result without manual intervention
-                    echo "creating SQ project, setting SQ to use python-des-memsoft-profile quality profile & Webhook for fetching quality gate result without manual intervention"
-                    withCredentials([string(credentialsId: 'sonar-community-prod-token', variable: 'SONAR_TOKEN')]) {
-                        sh "scripts/linux/runSonarQube.sh ${SONAR_TOKEN} ${SONAR_HOST_URL} ${sonar_projectName} ${sonar_projectKey} ${JENKINS_URL} ${sonar_qualityProfile} ${sonar_qualityGate} ${BitBucket_projectName} ${repo_name}"
+        stage('Parallel testing') {
+            parallel {
+                stage('Test and Coverage'){
+                    steps {
+                        sh "scripts/linux/unittest.sh"
+                    }
+                }
+                stage('Regression Tests'){         // This may be removed from CI
+                    steps {
+                        sh "scripts/linux/regressiontest.sh"
                     }
                 }
             }
         }
-        stage('Build project') {
-            steps {
-                echo 'Generating Built artifact'  // Placeholder. May not be required for python
-            } 
-        }         
-        stage('Test and Coverage'){
-            steps {
-                sh 'scripts/linux/unittest.sh'  
-            }
-        }
-        stage('Regression Tests'){         // This may be removed from CI
-            steps {
-                sh 'scripts/linux/regressiontest.sh'
-            }
-        }
         stage('SCA - PyLint'){
             steps {
-                sh "scripts/linux/runPylint.sh  $source_files $sonar_python_pylint_report"
+                sh "scripts/linux/runPylint.sh"
             }
         }
         stage('Archive Test Report'){
@@ -90,7 +81,17 @@ pipeline {
                 }
             }
         }
-        stage("SCA - SonarQube"){
+        stage ('Configure Sonarqube') {  //setting webhook and Spf quality profile
+            steps {
+                withSonarQubeEnv(sonar_server_instance) { //creating SQ project, setting SQ to use SPF quality profile & Webhook for fetching quality gate result without manual intervention
+                    echo "creating SQ project, setting SQ to use python-des-memsoft-profile quality profile & Webhook for fetching quality gate result without manual intervention"
+                    withCredentials([string(credentialsId: 'sonar-community-prod-token', variable: 'SONAR_TOKEN')]) {
+                        sh "scripts/linux/runSonarQube.sh ${SONAR_TOKEN} ${SONAR_HOST_URL} ${sonar_projectName} ${sonar_projectKey} ${JENKINS_URL} ${sonar_qualityProfile} ${sonar_qualityGate} ${BitBucket_projectName} ${repo_name}"
+                    }
+                }
+            }
+        }
+        stage('SCA - SonarQube'){
              environment {
                 sonarscanner = tool name: "${sonar_scanner_toolname_linux}"
             }
@@ -135,11 +136,6 @@ pipeline {
                 stage ('Generate Technical Doc'){
                     steps {
                         sh "scripts/linux/runSphinx.sh" // for linux nodes
-                    }
-                }
-                stage('Promotion') {
-                    steps {
-                        echo 'Promote to BETA state..'
                     }
                 }
             }
