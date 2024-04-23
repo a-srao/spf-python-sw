@@ -3,20 +3,20 @@ set -efxo pipefail
 . /opt/Modules/init/bash
 
 
-SONAR_TOKEN=${1?"ERROR: please pass 1st input as SONAR_TOKEN, eg SONAR_TOKEN"}
+SONAR_TOKEN=${SONAR_TOKEN?"ERROR: Set the enviornment variable for SONAR_TOKEN, eg SONAR_TOKEN"}
 
-SONAR_HOST_URL=${2?"ERROR: please pass 2nd input as SONAR_HOST_URL, eg https://sonar.intra.infineon.com"}
+SONAR_HOST_URL=${SONAR_HOST_URL?"ERROR: Set the enviornment variable for SONAR_HOST_URL, eg https://sonar.intra.infineon.com"}
 
-sonar_projectName=${3?"ERROR: please pass 3rd input as sonar_projectName, eg des-spf-python-sw"}
-sonar_projectKey=${4?"ERROR: please pass 4th input as SONAR_HOST_URL, eg des-spf-python-sw"}
+sonar_projectName=${sonar_projectName?"ERROR: Set the enviornment variable for sonar_projectName, eg des-spf-python-sw"}
+sonar_projectKey=${sonar_projectKey?"ERROR: Set the enviornment variable for SONAR_HOST_URL, eg des-spf-python-sw"}
 
-JENKINS_URL=${5?"ERROR: please pass 5th input as JENKINS_URL, eg https://spf-jenkins.icp.infineon.com"}
+JENKINS_URL=${JENKINS_URL?"ERROR: Set the enviornment variable for JENKINS_URL, eg https://spf-jenkins.icp.infineon.com"}
 
-sonar_qualityProfile=${6?"ERROR: please pass 6th input as sonar_qualityProfile, eg DES-SPF"}
-sonar_qualityGate=${7?"ERROR: please pass 7th input as sonar_qualityGate, eg des-spf"}
+sonar_qualityProfile=${sonar_qualityProfile?"ERROR: Set the enviornment variable for sonar_qualityProfile, eg DES-SPF"}
+sonar_qualityGate=${sonar_qualityGate?"ERROR: Set the enviornment variable for sonar_qualityGate, eg des-spf"}
 
-BitBucket_projectName=${8?"ERROR: please pass 8th input as BitBucket project name, eg DESSPF"}
-repo_name=${9?"ERROR: please pass 9th input as BitBucket repository name, eg spf-python-sw"}
+BitBucket_projectName=${BitBucket_projectName?"ERROR: Set the enviornment variable for BitBucket project name, eg DESSPF"}
+repo_name=${repo_name?"ERROR: Set the enviornment variable for BitBucket repository name, eg spf-python-sw"}
 
 
 echo "SONAR_HOST_URL is $SONAR_HOST_URL"
