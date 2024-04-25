@@ -84,12 +84,28 @@ pipeline {
                 }
             }
         }
+        stage('Upload Artifacts') {
+            steps {
+                script{
+                    server = Artifactory.server 'Artifactory'  // name configured in Manage Jenkins-> Configuration
+                    def copy = """{
+                        "files": [
+							{
+                                "pattern": "report.zip",
+                                "target": "gen-des-spf-local/linux/test/",
+                                "recursive": "false"
+                            }
+                        ]}"""
+                    server.upload(copy)
+                }
+            }
+        }
         stage ('Configure Sonarqube') {  //setting webhook and Spf quality profile
             steps {
                 withSonarQubeEnv(sonar_server_instance) { //creating SQ project, setting SQ to use SPF quality profile & Webhook for fetching quality gate result without manual intervention
                     echo "creating SQ project, setting SQ to use python-des-memsoft-profile quality profile & Webhook for fetching quality gate result without manual intervention"
                     withCredentials([string(credentialsId: 'sonar-community-prod-token', variable: 'SONAR_TOKEN')]) {
-                        sh "scripts/linux/runSonarQubeConfig.sh ${SONAR_TOKEN} ${SONAR_HOST_URL} ${sonar_projectName} ${sonar_projectKey} ${JENKINS_URL} ${sonar_qualityProfile} ${sonar_qualityGate} ${BitBucket_projectName} ${repo_name}"
+                        sh "scripts/linux/runSonarQubeConfig.sh"
                     }
                 }
             }
@@ -114,22 +130,6 @@ pipeline {
                             error "Pipeline aborted due to quality gate failure: ${qg.status}"
                         }
                     }
-                }
-            }
-        }
-        stage('Upload Artifacts') {
-            steps {
-                script{
-                    server = Artifactory.server 'Artifactory'  // name configured in Manage Jenkins-> Configuration
-                    def copy = """{
-                        "files": [
-							{
-                                "pattern": "report.zip",
-                                "target": "gen-des-spf-local/linux/test/",
-                                "recursive": "false"
-                            }
-                        ]}"""
-                    server.upload(copy)
                 }
             }
         }

@@ -2,11 +2,11 @@
 set -efxo pipefail
 . /opt/Modules/init/bash
 
-source_files=${source_files?"ERROR: Set the enviornment varaible as 1st input source dir, eg src"}
-sonar_python_pylint_report=${sonar_python_pylint_report?"ERROR: Set the enviornment varaible as 2nd input source file, eg reports/pylint.xml"}
+source_files=${source_files?"ERROR: Set the enviornment for varaible source_files dir, eg src"}
+sonar_python_pylint_report=${sonar_python_pylint_report?"ERROR: Set the enviornment varaible for sonar_python_pylint_report file, eg reports/pylint.xml"}
 
 echo "input_source is $source_files"
-echo "output_source is $sonar_python_pylint_report"
+echo "pylint report file location is $sonar_python_pylint_report"
 echo "This script to generate the static code analysis report using pylint"
 echo "This script expects pylint python packages"
 echo "Python interpreter should be set when script is executed"
