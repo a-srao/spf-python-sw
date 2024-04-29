@@ -6,12 +6,18 @@ REM Python interpreter should be set when script is executed
 
 REM Setting up the enviornments for SPHINX
 python -m pip install -r config/python/requirements.txt
+IF %ERRORLEVEL% NEQ 0 exit /b %ERRORLEVEL%
+
 pushd "%cd%"
 
 cd config/sphinx
 REM Generate and edit reStructured text (.rst) files
 sphinx-apidoc  -f  -o  ./source  ../../src
+IF %ERRORLEVEL% NEQ 0 exit /b %ERRORLEVEL%
 
 REM Generate the Technical Doc in HTML format
 make html
+IF %ERRORLEVEL% NEQ 0 exit /b %ERRORLEVEL%
+
 popd
+

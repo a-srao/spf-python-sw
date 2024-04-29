@@ -1,9 +1,12 @@
-#!/bin/tcsh
-set echo
-set source_files=$argv[1]
-set sonar_python_pylint_report=$argv[2]
-echo "source is $source_files"
-echo "source is $sonar_python_pylint_report"
+#!/bin/bash
+set -efxo pipefail
+. /opt/Modules/init/bash
+
+source_files=${source_files?"ERROR: Set the enviornment for varaible source_files dir, eg src"}
+sonar_python_pylint_report=${sonar_python_pylint_report?"ERROR: Set the enviornment varaible for sonar_python_pylint_report file, eg reports/pylint.xml"}
+
+echo "input_source is $source_files"
+echo "pylint report file location is $sonar_python_pylint_report"
 echo "This script to generate the static code analysis report using pylint"
 echo "This script expects pylint python packages"
 echo "Python interpreter should be set when script is executed"
@@ -13,5 +16,5 @@ module load python/3.9
 python -m pip install -r config/python/requirements.txt
 
 echo "Executing pylint for static code analysis report"
-python -m pylint --exit-zero -r n --msg-template="{path}:{line}: [{msg_id}({symbol}), {obj}] {msg}" $source_files > $sonar_python_pylint_report
+python -m pylint --load-plugins=pylint.extensions.mccabe --exit-zero -r n --msg-template="{path}:{line}: [{msg_id}({symbol}), {obj}] {msg}" $source_files > $sonar_python_pylint_report
 

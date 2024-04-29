@@ -1,7 +1,16 @@
-#!/bin/tcsh
+#!/bin/bash
 set echo
+set -euxo pipefail
+. /opt/Modules/init/bash
+
+source_files=${source_files?"ERROR: Set the enviornment variable source_files, eg src"}
+sonar_python_reportPath_html=${sonar_python_reportPath_html?"ERROR: Set the enviornment variable sonar_python_reportPath_html, eg reports/pytest.html"}
+sonar_python_coverage_reportPath_html=${sonar_python_coverage_reportPath_html?"ERROR: Set the enviornment variable sonar_python_coverage_reportPath_html, eg reports/coverage_html"}
+sonar_python_reportPath=${sonar_python_reportPath?"ERROR: Set the enviornment variable sonar_python_reportPath, eg reports/pytest.xml"}
+sonar_python_coverage_reportPath=${sonar_python_coverage_reportPath?"ERROR: Set the enviornment variable sonar_python_coverage_reportPath, eg reports/coverage_xml"}
+
 module load python/3.9
 python -m pip install -r config/python/requirements.txt
-python -m coverage run --omit=test --source src  --branch -m pytest --html=reports/pytest.html --cache-clear --junitxml reports/pytest.xml test/unit-test
-python -m coverage html -d reports/coverage_html
-python -m coverage xml -o reports/coverage.xml
+python -m coverage run --omit=test --source $source_files  --branch -m pytest --html=$sonar_python_reportPath_html --cache-clear --junitxml $sonar_python_reportPath test/unit-test
+python -m coverage html -d $sonar_python_coverage_reportPath_html
+python -m coverage xml -o $sonar_python_coverage_reportPath
