@@ -18,7 +18,7 @@ pipeline {
         sonar_projectKey =  "des-spf-python-sw"
         sonar_projectName = "des-spf-python-sw"
         sonar_qualityProfile = "DES-SPF"
-        sonar_qualityGate = "des-spf-python"
+        sonar_qualityGate = "des-spf"
         sonar_python_reportPath = "$reports_dir/pytest.xml"
         sonar_python_coverage_reportPath = "$reports_dir/coverage.xml"
         sonar_python_reportPath_html = "$reports_dir/pytest.html"
@@ -26,7 +26,7 @@ pipeline {
         sonar_python_pylint_report = "$reports_dir/pylint.xml"
 
         // SonarQube properties configurations
-        sonar_parameters = " -X -Dproject.settings=config/sonarqube/sonar.properties -Dsonar.python.reportPath=$sonar_python_reportPath  -Dsonar.python.coverage.reportPath=$sonar_python_coverage_reportPath -Dsonar.python.pylint.report=$sonar_python_pylint_report -Dsonar.projectKey=$sonar_projectKey -Dsonar.projectName=$sonar_projectName "
+        sonar_parameters = " -X -Dproject.settings=config/sonarqube/sonar.properties -Dsonar.python.reportPath=$sonar_python_reportPath  -Dsonar.python.coverage.reportPaths=$sonar_python_coverage_reportPath -Dsonar.python.pylint.report=$sonar_python_pylint_report -Dsonar.projectKey=$sonar_projectKey -Dsonar.projectName=$sonar_projectName "
     }
     stages {
         stage('Init') {
