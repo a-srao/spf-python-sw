@@ -8,7 +8,7 @@ def main():
     """Main Function"""
     print("Hello World!")
 
-def greet()
+def greet():
     print("Greetings!")
 
 
