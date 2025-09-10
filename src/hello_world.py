@@ -8,9 +8,6 @@ def main():
     """Main Function"""
     print("Hello World!")
 
-def greet():
-    print("Greetings!")
-    print("Test Greet Function")
 
 
 # the backslash is there so that code coverage
