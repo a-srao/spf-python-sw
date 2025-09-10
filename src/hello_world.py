@@ -2,11 +2,12 @@
 
 This module is a hello world demo
 """
-
+from utils import greet_user  # Example import from utils.py
 
 def main():
     """Main Function"""
-    print("Hello World!")
+    user_name = "World"
+    print(greet_user(user_name))
 
 
 
